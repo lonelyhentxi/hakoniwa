@@ -18,7 +18,7 @@ export class RawWhistleOp implements IWhistleOp {
     }
 }
 
-export class PlainWhistleRule implements IWhistleOp {
+export class PlainWhistleOp implements IWhistleOp {
     protocol: string;
     body: string;
     constructor(protocol: string, body: string) {
