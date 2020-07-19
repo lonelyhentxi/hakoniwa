@@ -1,23 +1,42 @@
-import { spawnSync, SpawnSyncOptions, SpawnSyncReturns } from 'child_process';
+import { spawnSync } from 'child_process';
 import { rmdirSync, existsSync, unlinkSync, writeFileSync } from 'fs';
 import * as path from 'path';
 
-export function startWhistleServerSync(baseDir: string, identifier: string, port: number, options?: SpawnSyncOptions): SpawnSyncReturns<Buffer> {
-    const serverDir = path.resolve("baseDir", ".whistle", "custom_dirs", identifier);
+export interface StartWhistleServerOptions {
+    baseDir: string;
+    identifier: string;
+    port: string;
+}
+
+export function startWhistleServerSync({baseDir, identifier, port }: StartWhistleServerOptions) {
+    const serverDir = path.join(baseDir, ".whistle", "custom_dirs", identifier);
     if(existsSync(serverDir)) {
         rmdirSync(serverDir, {
             recursive: true
         });
     }
-    return spawnSync("w2",["start", "-D", baseDir, "-S", identifier, "-port", port.toString()], options);
+    spawnSync("w2",["start", "-D", baseDir, "-S", identifier, "-port", port.toString()]);
 }
 
-export function stopWhistleServerSync(baseDir: string, identifier: string, options?: SpawnSyncOptions): SpawnSyncReturns<Buffer> {
-    return spawnSync("w2", ["stop","-D", baseDir, "-S", identifier], options);
+export interface StopWhistleServerOptions {
+    baseDir: string;
+    identifier: string;
 }
 
-export function addWhistleRuleSync(baseDir: string, identifier: string, ruleName: string, ruleContent: string, force: boolean, options?: SpawnSyncOptions): SpawnSyncReturns<Buffer> {
-    const ruleFilePath = path.resolve(baseDir, ".whistle", "custom_dirs", identifier, ruleName);
+export function stopWhistleServerSync({baseDir, identifier}: StopWhistleServerOptions) {
+    spawnSync("w2", ["stop","-D", baseDir, "-S", identifier]);
+}
+
+export interface MergeWhistleRuleOptions {
+    baseDir: string;
+    identifier: string;
+    ruleName: string;
+    ruleContent: string;
+    force: boolean;
+}
+
+export function mergeWhistleRuleSync({baseDir, identifier, ruleName, ruleContent, force}:MergeWhistleRuleOptions){
+    const ruleFilePath = path.join(baseDir, ".whistle", "custom_dirs", identifier, ruleName);
     if(existsSync(ruleFilePath)) {
         unlinkSync(ruleFilePath);
     }
@@ -26,5 +45,5 @@ export function addWhistleRuleSync(baseDir: string, identifier: string, ruleName
     if(force) {
         args.push("--force");
     }
-    return spawnSync("w2", args , options);
+    spawnSync("w2", args);
 }
