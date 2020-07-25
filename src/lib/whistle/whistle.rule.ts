@@ -24,11 +24,14 @@ export class RawWhistleRule implements IWhistleRule {
 export class PlainWhistleRule implements IWhistleRule {
     pattern: WhistlePattern;
     ops: WhistleOp[];
-    constructor(pattern: WhistlePattern, ops: WhistleOp[]) {
+    constructor(pattern: WhistlePattern, ops: WhistleOp[] | WhistleOp) {
         this.pattern = pattern;
-        this.ops = ops;
+        this.ops = ops instanceof Array ? ops : [ops];
     } 
     rule() {
         return `${this.pattern.toString()} ${this.ops.map(op=>op.toString()).join(" ")}`;
+    }
+    toString() {
+        return this.rule();
     }
 }

@@ -10,3 +10,11 @@ Miniature wonder toolbox for front-end development.
     - defines api pattern, such as protocol, host, port, path, body, etc, or pattern of other resources.
     - contains one or more test scripts (e2e or unit)
 3. controller that can input test schema, recognize the api pattern and cooperate with the proxy to feed mock data when your program needs, then run test scripts to test your program
+
+## Install
+
+```shell
+npm install --save-dev hakoniwa cypress cross-env webpack typescript ts-loader @cypress/webpack-preprocessor
+# or
+yarn install --dev hakoniwa cypress cross-env webpack typescript ts-loader @cypress/webpack-preprocessor
+```

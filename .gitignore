@@ -1,7 +1,7 @@
 node_modules/
 temp/
-lib/
-mock/
-index.js
-index.d.ts
 **/*.map
+/lib
+/constants
+/index.*.d.ts
+/index.*.js

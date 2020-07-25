@@ -23,9 +23,9 @@ export class RawWhistleRules implements IWhistleRules {
 export class PlainWhistleRules implements IWhistleRules {
     name: string;
     rules: WhistleRule[]
-    constructor(name: string, rules: WhistleRule[]) {
+    constructor(name: string, rules: WhistleRule[] | WhistleRule) {
         this.name = name;
-        this.rules = rules;
+        this.rules = rules instanceof Array ? rules : [rules];
     }
     content() {
         return `
@@ -37,12 +37,12 @@ export class PlainWhistleRules implements IWhistleRules {
 
 export class ExtendedWhistleRules implements IWhistleRules {
     name: string;
-    rules: string[];
-    plugins: WhistleRule[];
-    constructor(name: string, rules: string[], plugins: WhistleRule[]) {
+    plugins: string[];
+    rules: WhistleRule[];
+    constructor(name: string, rules: WhistleRule[] | WhistleRule, plugins: string[] | string) {
         this.name = name;
-        this.rules = rules;
-        this.plugins = plugins;
+        this.rules = rules instanceof Array ? rules : [rules];
+        this.plugins = plugins instanceof Array ? plugins : [plugins];
     }
     content() {
         return `
