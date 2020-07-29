@@ -1,16 +1,16 @@
 import * as fs from 'fs';
 import { 
-    startWhistleServerSync, stopWhistleServerSync, mergeWhistleRuleSync
+    startWhistleServerSync, stopWhistleServerSync, 
+    mergeWhistleRuleSync, allowWhistleMultipleRules, 
+    getWhistleData, removeWhistleRules,
 } from '../../whistle/whistle.service';
-import { 
-    HAKONIWA_PROXY_DIR, 
-    HAKONIWA_PROXY_IDENTIFIER, 
-    HAKONIWA_PROXY_PORT
-} from '../../../constants/constants.node';
 import {
-    PartialStartWhistleServerOptions,
-    PartialStopWhistleServerOptions,
-    PartialMergeWhistleRuleOptions
+    StartWhistleServerOptions,
+    StopWhistleServerOptions,
+    MergeWhistleRuleOptions,
+    AllowWhistleMultipleRulesOptions,
+    ProxyOptions, 
+    RemoveWhistleRulesOptions
 } from './tasks.defs';
 
 export const cyTasks = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) => {
@@ -22,29 +22,33 @@ export const cyTasks = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOp
                 return fs.readFileSync(path, { encoding: 'utf-8' })
             }
         },
-        startProxy: (options: PartialStartWhistleServerOptions = {}) => {
-            const config = Object.assign({
-                baseDir: HAKONIWA_PROXY_DIR,
-                identifier: HAKONIWA_PROXY_IDENTIFIER,
-                port: HAKONIWA_PROXY_PORT
-            }, options);
-            startWhistleServerSync(config);
+        removeFile: (path: string) => {
+            if(fs.existsSync(path) && !fs.statSync(path).isDirectory()) {
+                fs.unlinkSync(path);
+            }
             return null;
         },
-        stopProxy: (options: PartialStopWhistleServerOptions) => {
-            const config = Object.assign({
-                baseDir: HAKONIWA_PROXY_DIR,
-                identifier: HAKONIWA_PROXY_IDENTIFIER
-            }, options);
-            stopWhistleServerSync(config);
+        startProxy: (options: StartWhistleServerOptions) => {
+            startWhistleServerSync(options);
             return null;
         },
-        mergeRule: (options: PartialMergeWhistleRuleOptions) => {
-            const config = Object.assign({
-                baseDir: HAKONIWA_PROXY_DIR,
-                identifier: HAKONIWA_PROXY_IDENTIFIER
-            }, options);
-            mergeWhistleRuleSync(config);
+        stopProxy: (options: StopWhistleServerOptions) => {
+            stopWhistleServerSync(options);
+            return null;
+        },
+        mergeRule: (options: MergeWhistleRuleOptions) => {
+            mergeWhistleRuleSync(options);
+            return null;
+        },
+        allowMultipleRules: async (options: AllowWhistleMultipleRulesOptions) => {
+            await allowWhistleMultipleRules(options);
+            return null;
+        },
+        getProxyData: async (options: ProxyOptions) => {
+            return await getWhistleData(options);
+        },
+        removeRules: async (options: RemoveWhistleRulesOptions) => {
+            await removeWhistleRules(options);
             return null;
         }
     });

@@ -6,16 +6,17 @@ const {
   HAKONIWA_SECRETS_DIR,
   HAKONIWA_AUTH_DIR,
   HAKONIWA_DAEMON_PROXY_PORT,
-  HAKONIWA_DAEMON_PROXY_PROTOCOL,
+  HAKONIWA_PROXY_PROTOCOL,
+  HAKONIWA_PROXY_HOST,
   HAKONIWA_DAEMON_PROXY_IDENTIFIER,
   HAKONIWA_CYPRESS_WEBPACK_CONFIG_PATH,
   HAKONIWA_CYPRESS_TSCONFIG_PATH,
-  HAKONIWA_CYPRESS_PLUGINS_PATH
+  HAKONIWA_CYPRESS_PLUGINS_PATH,
 } = require('../constants/constants.node');
-const { startWhistleServerSync, stopWhistleServerSync } = require('../lib/whistle/whistle.service');
+const { startWhistleServerSync, stopWhistleServerSync, allowWhistleMultipleRules } = require('../lib/whistle/whistle.service');
 
 const [,,command,...args] = process.argv;
-
+(async ()=> {
 // @TODO: add cli help
 if(command==='init') {
   const paths = [HAKONIWA_AUTH_DIR,HAKONIWA_SECRETS_DIR,HAKONIWA_PROXY_DIR];
@@ -138,17 +139,22 @@ module.exports = (on, config) => {
     watchOptions: {}
   }
   on("file:preprocessor", webpack(options));
-  cyTasks(on, config)
+  cyTasks(on, config);
 }
 `)
 } else if(command==='open') {
-  const proxyServer = `${HAKONIWA_DAEMON_PROXY_PROTOCOL}://localhost:${HAKONIWA_DAEMON_PROXY_PORT}`;
+  const proxyServer = `${HAKONIWA_PROXY_PROTOCOL}://${HAKONIWA_PROXY_HOST}:${HAKONIWA_DAEMON_PROXY_PORT}`;
   startWhistleServerSync({
     baseDir: HAKONIWA_PROXY_DIR,
     identifier: HAKONIWA_DAEMON_PROXY_IDENTIFIER,
     port: HAKONIWA_DAEMON_PROXY_PORT,
   })
   try {
+    await allowWhistleMultipleRules({
+      protocol: HAKONIWA_PROXY_PROTOCOL,
+      host: HAKONIWA_PROXY_HOST,
+      port: HAKONIWA_DAEMON_PROXY_PORT,
+    });
     execSync(`cross-env HTTP_PROXY='${proxyServer}' HTTPS_PROXY='${proxyServer}' cypress open`, {
       stdio: 'inherit',
       cwd: process.cwd()
@@ -162,3 +168,5 @@ module.exports = (on, config) => {
 } else {
   throw new Error('invalid command');
 }
+
+})();

@@ -3,11 +3,11 @@ export interface IWhistlePattern {
     toString: () => string;
 }
 
-export type WhistlePattern = string | RegExp | IWhistlePattern;
+export type WhistlePattern = string | IWhistlePattern;
 
 export class RawWhistlePattern implements IWhistlePattern {
-    rawPattern: string | RegExp;
-    constructor(pattern: string | RegExp) {
+    rawPattern: string;
+    constructor(pattern: string) {
         this.rawPattern = pattern;
     }
     pattern() {
@@ -16,4 +16,17 @@ export class RawWhistlePattern implements IWhistlePattern {
     toString() {
         return this.pattern();
     }
+}
+
+export class RegExpWhistlePattern implements IWhistlePattern {
+    rawPattern: RegExp;
+    constructor(pattern: RegExp) {
+        this.rawPattern = pattern;
+    }
+    pattern() {
+        return `/${this.rawPattern.source}/`;
+    }
+    toString() {
+        return this.pattern();
+    } 
 }

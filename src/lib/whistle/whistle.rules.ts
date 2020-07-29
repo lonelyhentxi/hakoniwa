@@ -30,7 +30,7 @@ export class PlainWhistleRules implements IWhistleRules {
     content() {
         return `
         exports.name = \`${this.name}\`;
-        exports.rules = \`${this.rules.map(r=>r.toString()).join("\n")}\`;
+        exports.rules = \`${this.rules.map(r => r.toString()).join("\n")}\`;
         `;
     }
 }
@@ -48,10 +48,10 @@ export class ExtendedWhistleRules implements IWhistleRules {
         return `
         const assert = require('assert');
         module.exports = (cb, util) => {
-            assert(${this.plugins.map(p=>`util.existsPlugin(${p})`).join("&&")}, \`please install plugins: ${this.plugins.join(",")}\`);
+            assert(${this.plugins.map(p => `util.existsPlugin(${p})`).join("&&")}, \`please install plugins: ${this.plugins.join(",")}\`);
             cb({
                 name: \`${name}\`,
-                rules: \`${this.rules.map(r=>r.toString()).join("\n")}\`
+                rules: \`${this.rules.map(r => r.toString()).join("\n")}\`
             });
         };
         `

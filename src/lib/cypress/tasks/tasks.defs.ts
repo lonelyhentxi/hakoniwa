@@ -1,21 +1,25 @@
 import { 
-  StartWhistleServerOptions, StopWhistleServerOptions, MergeWhistleRuleOptions
+  StartWhistleServerOptions, StopWhistleServerOptions, MergeWhistleRuleOptions, 
+  ProxyOptions,AllowWhistleMultipleRulesOptions, RemoveWhistleRulesOptions
 } from '../../whistle/whistle.service.defs';
 
-export type PartialStartWhistleServerOptions = Partial<StartWhistleServerOptions>;
-export type PartialStopWhistleServerOptions = Partial<StopWhistleServerOptions>;
-export type PartialMergeWhistleRuleOptions = Partial<MergeWhistleRuleOptions> & {
-  ruleName: string;
-  ruleContent: string;
+export {
+  StartWhistleServerOptions, StopWhistleServerOptions, 
+  MergeWhistleRuleOptions, ProxyOptions, 
+  AllowWhistleMultipleRulesOptions, RemoveWhistleRulesOptions,
 };
 
 declare global {
   namespace Cypress {
       export interface Chainable<Subject> {
           task(task: "readFileOrNull", path: string): Chainable<string | null>;
-          task(task: "startProxy", options: PartialStartWhistleServerOptions): Chainable<null>;
-          task(task: "stopProxy", options: PartialStopWhistleServerOptions): Chainable<null>;
-          task(task: "mergeRule", options: PartialMergeWhistleRuleOptions): Chainable<null>;
+          task(task: "removeFile", path: string): Chainable<null>;
+          task(task: "startProxy", options: StartWhistleServerOptions): Chainable<null>;
+          task(task: "stopProxy", options: StopWhistleServerOptions): Chainable<null>;
+          task(task: "mergeRule", options: MergeWhistleRuleOptions): Chainable<null>;
+          task(task: "allowMultipleRules", options: AllowWhistleMultipleRulesOptions): Chainable<null>;
+          task(task: "getProxyData", options: ProxyOptions): Chainable<any>;
+          task(task: "removeRules", options: RemoveWhistleRulesOptions): Chainable<null>;
       }
   }
 }

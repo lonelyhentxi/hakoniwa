@@ -4,7 +4,7 @@ import 'cypress-localstorage-commands';
 import * as path from 'path';
 import * as Joi from '@hapi/joi';
 import * as Json5 from 'json5';
-import { HAKONIWA_CYPRESS_UNLIMIT_TIMEOUT } from '../../../constants/constants.browser';
+import './env';
 
 export interface CyStoreAuthCookie extends Cypress.SetCookieOptions {
     key: string;
@@ -20,7 +20,7 @@ export interface CyStoreAuthConfig {
 export interface CyStoreAuthOptions {
     configName: string;
     configBasePath?: string;
-    authCallback?: () => Cypress.Chainable<any> | void;  
+    authCallback?: () => Cypress.Chainable<any> | void;
 }
 
 export interface CyEnsureAuthOptions
@@ -29,7 +29,7 @@ export interface CyEnsureAuthOptions
 }
 
 export const CyStoreAuthConfigScheme = Joi.object({
-    cookies: Joi.array().items({ key: Joi.string().required()}).required(),
+    cookies: Joi.array().items({ key: Joi.string().required() }).required(),
     authUrl: Joi.string().required(),
     secretStore: Joi.string().required(),
     domains: Joi.array().items(Joi.string().required()).required(),
@@ -49,8 +49,9 @@ declare global {
     namespace Cypress {
         export interface Chainable<Subject> {
             loadAuthConfig(options: CyStoreAuthOptions): Chainable<CyStoreAuthConfig>;
-            loadAuth(options: CyStoreAuthOptions): Chainable<{loaded: boolean, authUrl: string}>;
+            loadAuth(options: CyStoreAuthOptions): Chainable<{ loaded: boolean, authUrl: string }>;
             saveAuth(options: CyStoreAuthOptions): Chainable<void>;
+            clearAuth(options: CyStoreAuthOptions): Chainable<void>;
             manualAuth(authUrl: string): Chainable<void>;
             ensureAuth(options: CyEnsureAuthOptions): Chainable<void>;
         }
@@ -58,13 +59,14 @@ declare global {
 }
 
 Cypress.Commands.add('manualAuth', (url: string) => {
+    const { HAKONIWA_CYPRESS_UNLIMIT_TIMEOUT } = Cypress.config('env');
     cy.visit(url);
     const confirmOptions = {
         auth: false,
         interrupt: true,
     };
     const authedConfirm = (newUrl: string) => {
-        if(newUrl===url) {
+        if (newUrl === url) {
             return;
         }
         confirmOptions.auth = confirm("auth successfully?");
@@ -84,11 +86,23 @@ Cypress.Commands.add('manualAuth', (url: string) => {
 });
 
 Cypress.Commands.add('ensureAuth', ({ configName, configBasePath, customAuth, authCallback }: CyEnsureAuthOptions) => {
-    cy.loadAuth({ configName, configBasePath, authCallback }).then(({loaded, authUrl}) => {
+    cy.loadAuth({ configName, configBasePath, authCallback }).then(({ loaded, authUrl }) => {
         if (!loaded) {
             (customAuth && isFunction(customAuth) ? customAuth() : cy.manualAuth(authUrl));
             cy.saveAuth({ configName, configBasePath });
             authCallback && isFunction(authCallback) && authCallback();
+        } else {
+            const reAuth = (newUrl: string) => {
+                if (newUrl.indexOf(authUrl) !== -1) {
+                    const c = confirm('auth failed, clear secrets?')
+                    cy.removeListener('url:changed', reAuth);
+                    if (c) {
+                        cy.clearAuth({ configName, configBasePath, authCallback });
+                        throw new Error("interrupt auth");
+                    }
+                }
+            }
+            cy.on('url:changed', reAuth);
         }
     });
 });
@@ -113,12 +127,12 @@ Cypress.Commands.add('loadAuth', (options: CyStoreAuthOptions) => {
             const { cookies: cookiesOptions, authUrl, secretStore, domains } = config;
             const res = {
                 toEnd: false,
-                loaded: false, 
+                loaded: false,
                 authUrl,
             };
             cy.task('readFileOrNull', secretStore)
-                .then((secretsContent)=>{
-                    if(!isString(secretsContent)) {
+                .then((secretsContent) => {
+                    if (!isString(secretsContent)) {
                         res.loaded = false;
                         res.toEnd = true;
                     } else {
@@ -128,7 +142,7 @@ Cypress.Commands.add('loadAuth', (options: CyStoreAuthOptions) => {
                         }
                         for (const d of domains) {
                             for (const co of cookiesOptions) {
-                                if(!isNil(secrets.cookies[co.key])) {
+                                if (!isNil(secrets.cookies[co.key])) {
                                     cy.setCookie(co.key, secrets.cookies[co.key].toString(), Object.assign(co, { domain: d }));
                                 }
                             }
@@ -138,8 +152,17 @@ Cypress.Commands.add('loadAuth', (options: CyStoreAuthOptions) => {
                         res.toEnd = true;
                     }
                 })
-            cy.waitUntil(()=>res.toEnd);
+            cy.waitUntil(() => res.toEnd);
             return cy.wrap(res);
+        })
+})
+
+Cypress.Commands.add('clearAuth', (options: CyStoreAuthOptions) => {
+    return cy.loadAuthConfig(options)
+        .then((config) => {
+            const { secretStore } = config;
+            cy.log(secretStore);
+            cy.task('removeFile', secretStore);
         })
 })
 
@@ -160,7 +183,7 @@ Cypress.Commands.add('saveAuth', (options: CyStoreAuthOptions) => {
                         setCounter++;
                     });
             }
-            cy.waitUntil(()=>setCounter>=cookiesOptions.length);
+            cy.waitUntil(() => setCounter >= cookiesOptions.length);
             cy.writeFile(secretStore, secrets, 'utf8');
         });
 })

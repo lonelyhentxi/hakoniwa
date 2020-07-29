@@ -20,3 +20,14 @@ export interface MergeWhistleRuleOptions {
   force?: boolean;
   w2path?: string;
 }
+
+export interface ProxyOptions {
+  host: string;
+  port: number;
+  protocol: 'http' | 'https'
+}
+
+
+export type AllowWhistleMultipleRulesOptions = ProxyOptions & { value: boolean };
+
+export type RemoveWhistleRulesOptions = ProxyOptions & { rules: string[] | string; };
