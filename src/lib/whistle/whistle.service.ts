@@ -55,7 +55,7 @@ export function mergeWhistleRuleSync({ baseDir, identifier, ruleName, ruleConten
 }
 
 export async function allowWhistleMultipleRules(options: AllowWhistleMultipleRulesOptions) {
-    await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/rules/allow-multiple-choice`, {
+    return await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/rules/allow-multiple-choice`, {
         method: 'POST',
         body: JSON.stringify({ allowMultipleChoice: 1 }),
         headers: { 'Content-Type': 'application/json' }
@@ -63,9 +63,10 @@ export async function allowWhistleMultipleRules(options: AllowWhistleMultipleRul
 }
 
 export async function getWhistleData(options: ProxyOptions) {
-    return await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/get-data`, {
+    const res = await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/get-data`, {
         method: 'GET',
     });
+    return await res.json();
 }
 
 export async function removeWhistleRules(options: RemoveWhistleRulesOptions) {

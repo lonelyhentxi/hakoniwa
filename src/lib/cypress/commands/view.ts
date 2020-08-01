@@ -14,7 +14,7 @@ declare global {
 }
 
 const setScrollbar = (options: SetScrollbarOptions = {}) => {
-  const styles = options.styles ?? 'none';
+  const styles = options.styles || '0px';
   const $head = Cypress.$('head');
   ($head).append(`<style>
   body::-webkit-scrollbar {
