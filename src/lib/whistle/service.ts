@@ -4,12 +4,14 @@ import * as path from 'path';
 import {
     StartServerOptions, StopServerOptions,
     SetRuleOptions, ProxyOptions,
-    ToggleConfigOptions, IdentifyConfigOptions, SetValueOptions
-} from './whistle.service.defs';
+    ToggleConfigOptions, IdentifyConfigOptions, SetValueOptions,
+    ProxyValue, ProxyData
+} from './service.defs';
 export {
     StartServerOptions, StopServerOptions,
     SetRuleOptions, ProxyOptions,
-    ToggleConfigOptions, IdentifyConfigOptions, SetValueOptions
+    ToggleConfigOptions, IdentifyConfigOptions, SetValueOptions,
+    ProxyValue, ProxyData
 };
 import fetch from 'node-fetch';
 
@@ -62,11 +64,11 @@ export async function toggleMultipleRules(options: ToggleConfigOptions) {
     });
 }
 
-export async function getData(options: ProxyOptions) {
+export async function getData(options: ProxyOptions): Promise<ProxyData> {
     const res = await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/get-data`, {
         method: 'GET',
     });
-    return await res.json();
+    return await res.json() as ProxyData;
 }
 
 export async function removeRule(options: IdentifyConfigOptions) {

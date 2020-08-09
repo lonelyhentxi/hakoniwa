@@ -1,13 +1,13 @@
-import { WhistleRule } from './whistle.rule';
+import { ProxyRule } from './rule';
 
-export interface IWhistleRules {
+export interface IProxyRules {
     name: string;
     content: () => string;
 }
 
-export type WhistleRules = IWhistleRules;
+export type ProxyRules = IProxyRules;
 
-export class RawWhistleRules implements IWhistleRules {
+export class RawProxyRules implements IProxyRules {
     name: string;
     rawContent: string;
     constructor(name: string, content: string) {
@@ -20,10 +20,10 @@ export class RawWhistleRules implements IWhistleRules {
 }
 
 
-export class PlainWhistleRules implements IWhistleRules {
+export class PlainProxyRules implements IProxyRules {
     name: string;
-    rules: WhistleRule[]
-    constructor(name: string, rules: WhistleRule[] | WhistleRule) {
+    rules: ProxyRule[]
+    constructor(name: string, rules: ProxyRule[] | ProxyRule) {
         this.name = name;
         this.rules = rules instanceof Array ? rules : [rules];
     }
@@ -35,11 +35,11 @@ export class PlainWhistleRules implements IWhistleRules {
     }
 }
 
-export class ExtendedWhistleRules implements IWhistleRules {
+export class ExtendedProxyRules implements IProxyRules {
     name: string;
     plugins: string[];
-    rules: WhistleRule[];
-    constructor(name: string, rules: WhistleRule[] | WhistleRule, plugins: string[] | string) {
+    rules: ProxyRule[];
+    constructor(name: string, rules: ProxyRule[] | ProxyRule, plugins: string[] | string) {
         this.name = name;
         this.rules = rules instanceof Array ? rules : [rules];
         this.plugins = plugins instanceof Array ? plugins : [plugins];

@@ -1,13 +1,11 @@
-import * as Json5 from 'json5';
-
-export interface IWhistleOp {
+export interface IProxyOp {
     op: () => string;
     toString: () => string;
 }
 
-export type WhistleOp = string | IWhistleOp;
+export type ProxyOp = string | IProxyOp;
 
-export class RawWhistleOp implements IWhistleOp {
+export class RawProxyOp implements IProxyOp {
     rawOp: string;
     constructor(op: string) {
         this.rawOp = op;
@@ -20,7 +18,7 @@ export class RawWhistleOp implements IWhistleOp {
     }
 }
 
-export class PlainWhistleOp implements IWhistleOp {
+export class PlainProxyOp implements IProxyOp {
     protocol: string;
     body: string;
     constructor(protocol: string, body: string) {
@@ -35,7 +33,7 @@ export class PlainWhistleOp implements IWhistleOp {
     }
 }
 
-export class JSONOp implements IWhistleOp {
+export class JSONOp implements IProxyOp {
     protocol: string;
     body: object;
     constructor(protocol: string, body: object) {
@@ -49,7 +47,7 @@ export class JSONOp implements IWhistleOp {
         return this.op();
     }
 }
-export class StatusOp implements IWhistleOp {
+export class StatusOp implements IProxyOp {
     protocol  = 'replaceStatus';
     statusCode: number;
     constructor(statusCode: number) {
@@ -63,7 +61,7 @@ export class StatusOp implements IWhistleOp {
     }
 }
 
-export class ResTypeOp implements IWhistleOp {
+export class ResTypeOp implements IProxyOp {
     protocol  = 'resType';
     type: string;
     constructor(type: string) {

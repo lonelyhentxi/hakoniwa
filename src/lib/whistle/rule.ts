@@ -1,14 +1,14 @@
-import { WhistlePattern } from './whistle.pattern';
-import { WhistleOp } from './whistle.op';
+import { ProxyPattern } from './pattern';
+import { ProxyOp } from './op';
 
-export interface IWhistleRule {
+export interface IProxyRule {
     rule: () => string;
     toString: () => string;
 }
 
-export type WhistleRule = string | IWhistleRule;
+export type ProxyRule = string | IProxyRule;
 
-export class RawWhistleRule implements IWhistleRule {
+export class RawProxyRule implements IProxyRule {
     rawRule: string;
     constructor(rule: string) {
         this.rawRule = rule;
@@ -21,10 +21,10 @@ export class RawWhistleRule implements IWhistleRule {
     }
 }
 
-export class PlainWhistleRule implements IWhistleRule {
-    pattern: WhistlePattern;
-    ops: WhistleOp[];
-    constructor(pattern: WhistlePattern, ops: WhistleOp[] | WhistleOp) {
+export class PlainProxyRule implements IProxyRule {
+    pattern: ProxyPattern;
+    ops: ProxyOp[];
+    constructor(pattern: ProxyPattern, ops: ProxyOp[] | ProxyOp) {
         this.pattern = pattern;
         this.ops = ops instanceof Array ? ops : [ops];
     } 

@@ -5,15 +5,17 @@ import {
   ProxyOptions,
   ToggleConfigOptions as ProxyToggleConfigOptions, 
   IdentifyConfigOptions as ProxyIdentifyConfigOptions, 
-  SetValueOptions as ProxySetValueOptions
-} from '../../whistle/whistle.service.defs';
+  SetValueOptions as ProxySetValueOptions,
+  ProxyData, ProxyValue
+} from '../../whistle/service.defs';
 
 type ProxyIdentifyConfigsOptions = ProxyOptions & { names: string[] | string };
 
 
 export {
   ProxyStartServerOptions, ProxyStopServerOptions, ProxySetRuleOptions, ProxyOptions, 
-  ProxyIdentifyConfigOptions, ProxyIdentifyConfigsOptions, ProxyToggleConfigOptions, ProxySetValueOptions
+  ProxyIdentifyConfigOptions, ProxyIdentifyConfigsOptions, ProxyToggleConfigOptions, ProxySetValueOptions,
+  ProxyData, ProxyValue
 }
 
 declare global {

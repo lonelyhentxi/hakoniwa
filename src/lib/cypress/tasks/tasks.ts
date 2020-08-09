@@ -4,7 +4,7 @@ import {
     setRuleSync, toggleMultipleRules,  removeRule,
     getData, toggleInterceptHTTPSConnects, toggleHTTP2, 
     addValue, setValue, removeValue
-} from '../../whistle/whistle.service';
+} from '../../whistle/service';
 import {
     ProxyStartServerOptions, ProxyStopServerOptions, ProxySetRuleOptions, ProxyOptions,
     ProxyIdentifyConfigOptions, ProxyIdentifyConfigsOptions, ProxyToggleConfigOptions, 

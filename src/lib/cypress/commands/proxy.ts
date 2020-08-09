@@ -2,13 +2,16 @@ import {
   ProxyStartServerOptions, ProxyStopServerOptions, ProxySetRuleOptions, ProxyOptions, 
   ProxyIdentifyConfigOptions, ProxyIdentifyConfigsOptions, ProxyToggleConfigOptions, ProxySetValueOptions
 } from '../tasks/tasks.defs';
-import { PlainWhistleRules as Rs, PlainWhistleRule as R, WhistleRules, RegExpWhistlePattern as P } from '../../whistle/index.browser';
+import { PlainProxyRules as Rs, PlainProxyRule as R, ProxyRules, RegExpProxyPattern as P } from '../../whistle/index.browser';
 import './env';
 
 export type PartialProxySetRuleOptions = Partial<ProxySetRuleOptions> & {
   ruleName: string;
   ruleContent: string;
 };
+export type PartialProxySetValueOptions = Partial<ProxySetValueOptions> & {
+  name: string; value: string; hide: boolean; active: boolean; changed: boolean;
+}
 
 declare global {
   namespace Cypress {
@@ -21,7 +24,7 @@ declare global {
       proxySet(options?: Partial<ProxyOptions>): Chainable<void>;
       proxyReset(): Chainable<void>;
       // Proxy Rules
-      proxyUseRule(rules: WhistleRules): Chainable<void>;
+      proxyUseRule(rules: ProxyRules): Chainable<void>;
       proxySetRule(options: PartialProxySetRuleOptions): Chainable<void>;
       proxyToggleMultipleRules(options?: Partial<ProxyToggleConfigOptions>): Chainable<void>;
       proxyRemoveRules(options?: Partial<ProxyIdentifyConfigsOptions>): Chainable<void>;
@@ -31,6 +34,7 @@ declare global {
       // Proxy Data
       proxyGetData(options?: Partial<ProxyOptions>): Chainable<any>;
       // Proxy Values
+      proxySetValue(options?: Partial<ProxySetValueOptions>): Chainable<void>;
     }
   }
 }
@@ -137,7 +141,7 @@ Cypress.Commands.add('proxySetRule', (options: PartialProxySetRuleOptions) => {
   cy.task('proxySetRule', config);
 })
 
-Cypress.Commands.add('proxyUseRule', (rules: WhistleRules) => {
+Cypress.Commands.add('proxyUseRule', (rules: ProxyRules) => {
   cy.proxySetRule({ ruleName: rules.name, ruleContent: rules.content() });
 })
 
@@ -220,4 +224,38 @@ Cypress.Commands.add('proxyRemoveRules', (options: Partial<ProxyIdentifyConfigsO
   } else {
     cy.task('proxyRemoveRules', config);
   }
+})
+
+Cypress.Commands.add('proxyRemoveValues', (options: Partial<ProxyIdentifyConfigsOptions> = {}) => {
+  const {
+    HAKONIWA_PROXY_PROTOCOL,
+    HAKONIWA_PROXY_PORT,
+    HAKONIWA_PROXY_HOST,
+  } = Cypress.config('env');
+  const config = Object.assign({
+    protocol: HAKONIWA_PROXY_PROTOCOL,
+    port: HAKONIWA_PROXY_PORT,
+    host: HAKONIWA_PROXY_HOST,
+  }, options);
+  if (!options.names) {
+    cy.proxyGetData(config).then((data) => {
+      config.names = data.list;
+      cy.task('proxyRemoveRules', config);
+    })
+  } else {
+    cy.task('proxyRemoveRules', config);
+  }
+})
+
+Cypress.Commands.add('proxySetValue', (options: Partial<ProxySetValueOptions>) => {
+  const {
+    HAKONIWA_PROXY_PROTOCOL,
+    HAKONIWA_PROXY_PORT,
+    HAKONIWA_PROXY_HOST,
+  } = Cypress.config('env');
+  const config = Object.assign({
+    protocol: HAKONIWA_PROXY_PROTOCOL,
+    port: HAKONIWA_PROXY_PORT,
+    host: HAKONIWA_PROXY_HOST,
+  }, options);
 })

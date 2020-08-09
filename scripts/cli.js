@@ -19,7 +19,7 @@ const {
   stopServerSync,
   toggleHTTP2,
   toggleMultipleRules,
-} = require('../lib/whistle/whistle.service');
+} = require('../lib/whistle/service');
 
 const [,,command,...args] = process.argv;
 (async ()=> {
