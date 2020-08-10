@@ -1,54 +1,75 @@
 import * as fs from 'fs';
 import { 
-    startWhistleServerSync, stopWhistleServerSync, 
-    mergeWhistleRuleSync, allowWhistleMultipleRules, 
-    getWhistleData, removeWhistleRules,
+    startServerSync, stopServerSync, 
+    setRuleSync, toggleMultipleRules,  removeRule,
+    getData, toggleInterceptHTTPSConnects, toggleHTTP2, 
+    addValue, setValue, removeValue
 } from '../../whistle/whistle.service';
 import {
-    StartWhistleServerOptions,
-    StopWhistleServerOptions,
-    MergeWhistleRuleOptions,
-    AllowWhistleMultipleRulesOptions,
-    ProxyOptions, 
-    RemoveWhistleRulesOptions
+    ProxyStartServerOptions, ProxyStopServerOptions, ProxySetRuleOptions, ProxyOptions,
+    ProxyIdentifyConfigOptions, ProxyIdentifyConfigsOptions, ProxyToggleConfigOptions, 
+    ProxySetValueOptions
 } from './tasks.defs';
+import { splitIterableField } from './tasks.tools';
 
 export const cyTasks = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) => {
     on('task', {
-        readFileOrNull: (path: string) => {
+        fsReadFileOrNull: (path: string) => {
             if(!fs.existsSync(path)) {
                 return null;
             } else {
                 return fs.readFileSync(path, { encoding: 'utf-8' })
             }
         },
-        removeFile: (path: string) => {
+        fsRemoveFile: (path: string) => {
             if(fs.existsSync(path) && !fs.statSync(path).isDirectory()) {
                 fs.unlinkSync(path);
             }
             return null;
         },
-        startProxy: (options: StartWhistleServerOptions) => {
-            startWhistleServerSync(options);
+        proxyStart: (options: ProxyStartServerOptions) => {
+            startServerSync(options);
             return null;
         },
-        stopProxy: (options: StopWhistleServerOptions) => {
-            stopWhistleServerSync(options);
+        proxyStop: (options: ProxyStopServerOptions) => {
+            stopServerSync(options);
             return null;
         },
-        mergeRule: (options: MergeWhistleRuleOptions) => {
-            mergeWhistleRuleSync(options);
+        proxySetRule: (options: ProxySetRuleOptions) => {
+            setRuleSync(options);
             return null;
         },
-        allowMultipleRules: async (options: AllowWhistleMultipleRulesOptions) => {
-            await allowWhistleMultipleRules(options);
+        proxyToggleMultipleRules: async (options: ProxyToggleConfigOptions) => {
+            await toggleMultipleRules(options);
             return null;
         },
-        getProxyData: async (options: ProxyOptions) => {
-            return await getWhistleData(options);
+        proxyToggleInterceptHTTPSConnects: async (options: ProxyToggleConfigOptions) => {
+            await toggleInterceptHTTPSConnects(options);
+            return null;
         },
-        removeRules: async (options: RemoveWhistleRulesOptions) => {
-            await removeWhistleRules(options);
+        proxyToggleHttp2: async (options: ProxyToggleConfigOptions) => {
+            await toggleHTTP2(options);
+            return null;
+        },
+        proxyGetData: async (options: ProxyOptions) => {
+            return await getData(options);
+        },
+        proxyRemoveRules: async (options: ProxyIdentifyConfigsOptions) => {
+            const configs = splitIterableField(options);
+            await Promise.all(configs.map(c=>removeRule(c)));
+            return null;
+        },
+        proxyAddValues: async (options: ProxyIdentifyConfigOptions) => {
+            await addValue(options);
+            return null;
+        },
+        proxySetValues: async (options: ProxySetValueOptions) => {
+            await setValue(options);
+            return null;
+        },
+        proxyRemoveValues: async (options: ProxyIdentifyConfigsOptions) => {
+            const configs = splitIterableField(options);
+            await Promise.all(configs.map(c=>removeValue(c)));
             return null;
         }
     });

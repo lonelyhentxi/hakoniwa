@@ -1,25 +1,43 @@
 import { 
-  StartWhistleServerOptions, StopWhistleServerOptions, MergeWhistleRuleOptions, 
-  ProxyOptions,AllowWhistleMultipleRulesOptions, RemoveWhistleRulesOptions
+  StartServerOptions as ProxyStartServerOptions, 
+  StopServerOptions as ProxyStopServerOptions,
+  SetRuleOptions as ProxySetRuleOptions, 
+  ProxyOptions,
+  ToggleConfigOptions as ProxyToggleConfigOptions, 
+  IdentifyConfigOptions as ProxyIdentifyConfigOptions, 
+  SetValueOptions as ProxySetValueOptions
 } from '../../whistle/whistle.service.defs';
 
+type ProxyIdentifyConfigsOptions = ProxyOptions & { names: string[] | string };
+
+
 export {
-  StartWhistleServerOptions, StopWhistleServerOptions, 
-  MergeWhistleRuleOptions, ProxyOptions, 
-  AllowWhistleMultipleRulesOptions, RemoveWhistleRulesOptions,
-};
+  ProxyStartServerOptions, ProxyStopServerOptions, ProxySetRuleOptions, ProxyOptions, 
+  ProxyIdentifyConfigOptions, ProxyIdentifyConfigsOptions, ProxyToggleConfigOptions, ProxySetValueOptions
+}
 
 declare global {
   namespace Cypress {
       export interface Chainable<Subject> {
-          task(task: "readFileOrNull", path: string): Chainable<string | null>;
-          task(task: "removeFile", path: string): Chainable<null>;
-          task(task: "startProxy", options: StartWhistleServerOptions): Chainable<null>;
-          task(task: "stopProxy", options: StopWhistleServerOptions): Chainable<null>;
-          task(task: "mergeRule", options: MergeWhistleRuleOptions): Chainable<null>;
-          task(task: "allowMultipleRules", options: AllowWhistleMultipleRulesOptions): Chainable<null>;
-          task(task: "getProxyData", options: ProxyOptions): Chainable<any>;
-          task(task: "removeRules", options: RemoveWhistleRulesOptions): Chainable<null>;
+          // Filesystem
+          task(task: "fsReadFileOrNull", path: string): Chainable<string | null>;
+          task(task: "fsRemoveFile", path: string): Chainable<null>;
+          // Proxy Server
+          task(task: "proxyStart", options: ProxyStartServerOptions): Chainable<null>;
+          task(task: "proxyStop", options: ProxyStopServerOptions): Chainable<null>;
+          // Proxy Data
+          task(task: "proxyGetData", options: ProxyOptions): Chainable<any>;
+          // Proxy Rules
+          task(task: "proxyToggleMultipleRules", options: ProxyToggleConfigOptions): Chainable<null>;
+          task(task: "proxySetRule", options: ProxySetRuleOptions): Chainable<null>;
+          task(task: "proxyRemoveRules", options: ProxyIdentifyConfigsOptions): Chainable<null>;
+          // Proxy Values
+          task(task: "proxyAddValue", options: ProxyIdentifyConfigOptions): Chainable<null>;
+          task(task: "proxySetValue", options: ProxySetValueOptions): Chainable<null>;
+          task(task: "proxyRemoveValues", options: ProxyIdentifyConfigsOptions): Chainable<null>;
+          // HTTPS & HTTP2
+          task(task: "proxyToggleInterceptHTTPSConnects", options: ProxyToggleConfigOptions): Chainable<null>;
+          task(task: "proxyToggleHTTP2", options: ProxyToggleConfigOptions): Chainable<null>;
       }
   }
 }

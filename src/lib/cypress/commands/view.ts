@@ -1,19 +1,19 @@
-import { CancellationOptions } from './event';
+import { EventCancellationOptions } from './event';
 import './event';
 
-export type SetScrollbarOptions = { styles?: string };
-export type AutoSetScrollbarOptions = Partial<CancellationOptions> & SetScrollbarOptions;
+export type ViewSetScrollbarOptions = { styles?: string };
+export type ViewAutoSetScrollbarOptions = Partial<EventCancellationOptions> & ViewSetScrollbarOptions;
 
 declare global {
   namespace Cypress {
     export interface Chainable<Subject> {
-      setScrollbar(options?: SetScrollbarOptions): Chainable<void>;
-      autoSetScrollbar(options: AutoSetScrollbarOptions): Chainable<void>;
+      viewSetScrollbar(options?: ViewSetScrollbarOptions): Chainable<void>;
+      viewAutoSetScrollbar(options: ViewAutoSetScrollbarOptions): Chainable<void>;
     }
   }
 }
 
-const setScrollbar = (options: SetScrollbarOptions = {}) => {
+const setScrollbar = (options: ViewSetScrollbarOptions = {}) => {
   const styles = options.styles || '0px';
   const $head = Cypress.$('head');
   ($head).append(`<style>
@@ -28,13 +28,13 @@ const setScrollbar = (options: SetScrollbarOptions = {}) => {
   </style>`);
 }
 
-Cypress.Commands.add('setScrollbar', setScrollbar);
+Cypress.Commands.add('viewSetScrollbar', setScrollbar);
 
-Cypress.Commands.add('autoSetScrollbar', (options: AutoSetScrollbarOptions) => {
+Cypress.Commands.add('viewAutoSetScrollbar', (options: ViewAutoSetScrollbarOptions) => {
   const config = Object.assign({
     cancellationToken: 'autoSetScrollbar'
   }, options);
-  cy.addAutoHandler({
+  cy.eventAddAutoHandler({
     cancellationToken: config.cancellationToken,
     name: 'window:before:load',
     handler: () => setScrollbar(config),

@@ -43,7 +43,7 @@ export class JSONOp implements IWhistleOp {
         this.body = body;
     }
     op() {
-        return `${this.protocol}://(${JSON.stringify(this.body).replace(/ /g, '%20')})`;
+        return `${this.protocol}://(${JSON.stringify(this.body).replace(/ /g, '%20').replace(/\r/g,'%0D').replace(/\n/g, '%0A')})`;
     }
     toString() {
         return this.op();

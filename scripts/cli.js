@@ -12,14 +12,20 @@ const {
   HAKONIWA_CYPRESS_WEBPACK_CONFIG_PATH,
   HAKONIWA_CYPRESS_TSCONFIG_PATH,
   HAKONIWA_CYPRESS_PLUGINS_PATH,
+  HAKONIWA_PROXY_HTTPS_CERT_DIR
 } = require('../constants/constants.node');
-const { startWhistleServerSync, stopWhistleServerSync, allowWhistleMultipleRules } = require('../lib/whistle/whistle.service');
+const { 
+  startServerSync, 
+  stopServerSync,
+  toggleHTTP2,
+  toggleMultipleRules,
+} = require('../lib/whistle/whistle.service');
 
 const [,,command,...args] = process.argv;
 (async ()=> {
 // @TODO: add cli help
 if(command==='init') {
-  const paths = [HAKONIWA_AUTH_DIR,HAKONIWA_SECRETS_DIR,HAKONIWA_PROXY_DIR];
+  const paths = [HAKONIWA_AUTH_DIR,HAKONIWA_SECRETS_DIR,HAKONIWA_PROXY_DIR, HAKONIWA_PROXY_HTTPS_CERT_DIR];
   for(const p of paths) {
     fs.mkdirSync(p, { recursive: true });
   }
@@ -144,23 +150,33 @@ module.exports = (on, config) => {
 `)
 } else if(command==='open') {
   const proxyServer = `${HAKONIWA_PROXY_PROTOCOL}://${HAKONIWA_PROXY_HOST}:${HAKONIWA_DAEMON_PROXY_PORT}`;
-  startWhistleServerSync({
+  startServerSync({
     baseDir: HAKONIWA_PROXY_DIR,
     identifier: HAKONIWA_DAEMON_PROXY_IDENTIFIER,
     port: HAKONIWA_DAEMON_PROXY_PORT,
+    certDir: HAKONIWA_PROXY_HTTPS_CERT_DIR
   })
   try {
-    await allowWhistleMultipleRules({
-      protocol: HAKONIWA_PROXY_PROTOCOL,
-      host: HAKONIWA_PROXY_HOST,
-      port: HAKONIWA_DAEMON_PROXY_PORT,
-    });
+    await Promise.all([
+      toggleMultipleRules({
+        protocol: HAKONIWA_PROXY_PROTOCOL,
+        host: HAKONIWA_PROXY_HOST,
+        port: HAKONIWA_DAEMON_PROXY_PORT,
+        value: true
+      }),
+      toggleHTTP2({
+        protocol: HAKONIWA_PROXY_PROTOCOL,
+        host: HAKONIWA_PROXY_HOST,
+        port: HAKONIWA_DAEMON_PROXY_PORT,
+        value: true
+      })
+    ])
     execSync(`cross-env HTTP_PROXY='${proxyServer}' HTTPS_PROXY='${proxyServer}' cypress open`, {
       stdio: 'inherit',
       cwd: process.cwd()
     });
   } finally {
-    stopWhistleServerSync({
+    stopServerSync({
       baseDir: HAKONIWA_PROXY_DIR,
       identifier: HAKONIWA_DAEMON_PROXY_IDENTIFIER,
     });
@@ -168,5 +184,4 @@ module.exports = (on, config) => {
 } else {
   throw new Error('invalid command');
 }
-
 })();

@@ -2,27 +2,27 @@ import { execSync } from 'child_process';
 import { rmdirSync, existsSync, unlinkSync, writeFileSync, mkdirSync } from 'fs';
 import * as path from 'path';
 import {
-    StartWhistleServerOptions, StopWhistleServerOptions,
-    MergeWhistleRuleOptions, ProxyOptions,
-    AllowWhistleMultipleRulesOptions, RemoveWhistleRulesOptions
+    StartServerOptions, StopServerOptions,
+    SetRuleOptions, ProxyOptions,
+    ToggleConfigOptions, IdentifyConfigOptions, SetValueOptions
 } from './whistle.service.defs';
 export {
-    StartWhistleServerOptions, StopWhistleServerOptions,
-    MergeWhistleRuleOptions, ProxyOptions,
-    AllowWhistleMultipleRulesOptions, RemoveWhistleRulesOptions
+    StartServerOptions, StopServerOptions,
+    SetRuleOptions, ProxyOptions,
+    ToggleConfigOptions, IdentifyConfigOptions, SetValueOptions
 };
 import fetch from 'node-fetch';
 
-export function stopWhistleServerSync({ baseDir, identifier, w2path }: StopWhistleServerOptions) {
+export function stopServerSync({ baseDir, identifier, w2path }: StopServerOptions) {
     execSync(`${w2path ?? 'w2'} stop -S ${identifier} -D ${baseDir}`, {
         stdio: 'inherit',
         cwd: process.cwd(),
     });
 }
 
-export function startWhistleServerSync({ baseDir, identifier, port, w2path }: StartWhistleServerOptions) {
+export function startServerSync({ baseDir, identifier, port, w2path, certDir }: StartServerOptions) {
     try {
-        stopWhistleServerSync({ baseDir, identifier, w2path });
+        stopServerSync({ baseDir, identifier, w2path });
     } catch (e) {
     }
     const serverDir = path.join(baseDir, "./.whistle", "custom_dirs", identifier);
@@ -31,13 +31,13 @@ export function startWhistleServerSync({ baseDir, identifier, port, w2path }: St
             recursive: true
         });
     }
-    execSync(`${w2path ?? 'w2'} start -S ${identifier} -D ${baseDir} --port ${port}`, {
+    execSync(`${w2path ?? 'w2'} start -S ${identifier} -D ${baseDir} --port ${port}${certDir?` -z ${certDir}`:''}`, {
         stdio: 'inherit',
         cwd: process.cwd(),
     });
 }
 
-export function mergeWhistleRuleSync({ baseDir, identifier, ruleName, ruleContent, force, w2path }: MergeWhistleRuleOptions) {
+export function setRuleSync({ baseDir, identifier, ruleName, ruleContent, force, w2path }: SetRuleOptions) {
     const ruleFilePath = path.join(baseDir, "./.whistle", "custom_dirs", identifier, ruleName + ".js");
     if (existsSync(ruleFilePath)) {
         unlinkSync(ruleFilePath);
@@ -54,26 +54,73 @@ export function mergeWhistleRuleSync({ baseDir, identifier, ruleName, ruleConten
     });
 }
 
-export async function allowWhistleMultipleRules(options: AllowWhistleMultipleRulesOptions) {
+export async function toggleMultipleRules(options: ToggleConfigOptions) {
     return await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/rules/allow-multiple-choice`, {
         method: 'POST',
-        body: JSON.stringify({ allowMultipleChoice: 1 }),
+        body: JSON.stringify({ allowMultipleChoice: options.value?1:0 }),
         headers: { 'Content-Type': 'application/json' }
     });
 }
 
-export async function getWhistleData(options: ProxyOptions) {
+export async function getData(options: ProxyOptions) {
     const res = await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/get-data`, {
         method: 'GET',
     });
     return await res.json();
 }
 
-export async function removeWhistleRules(options: RemoveWhistleRulesOptions) {
-    const rules = options.rules instanceof Array ? options.rules : [options.rules];
-    await Promise.all(rules.map(r => fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/rules/remove`, {
+export async function removeRule(options: IdentifyConfigOptions) {
+    await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/rules/remove`, {
         method: 'POST',
-        body: JSON.stringify({ name: r }),
+        body: JSON.stringify({ name: options.name }),
         headers: { 'Content-Type': 'application/json' }
-    })))
+    })
+}
+
+export async function toggleInterceptHTTPSConnects(options: ToggleConfigOptions) {
+    return await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/intercept-https-connects`, {
+        method: 'POST',
+        body: JSON.stringify({ interceptHttpsConnects: options.value?1:0 }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+}
+
+export async function toggleHTTP2(options: ToggleConfigOptions) {
+    return await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/enable-http2`, {
+        method: 'POST',
+        body: JSON.stringify({ enableHttp2: options.value?1:0 }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+}
+
+export async function addValue(options: IdentifyConfigOptions) {
+    return await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/values/add`, {
+        method: 'POST',
+        body: JSON.stringify({ name: options.name }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+}
+
+export async function setValue(options: SetValueOptions) {
+    return await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/values/add`, {
+        method: 'POST',
+        body: JSON.stringify({
+            name: options.name,
+            value: options.value,
+            hide: options.hide,
+            active: options.active,
+            changed: options.changed
+        }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+}
+
+export async function removeValue(options: IdentifyConfigOptions) {
+    return await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/values/remove`, {
+        method: 'POST',
+        body: JSON.stringify({
+            name: options.name
+        }),
+        headers: { 'Content-Type': 'application/json' }
+    })
 }

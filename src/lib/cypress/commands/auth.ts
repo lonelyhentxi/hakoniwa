@@ -6,59 +6,59 @@ import * as Joi from '@hapi/joi';
 import * as Json5 from 'json5';
 import './env';
 
-export interface CyStoreAuthCookie extends Cypress.SetCookieOptions {
+export interface AuthCookie extends Cypress.SetCookieOptions {
     key: string;
 }
 
-export interface CyStoreAuthConfig {
+export interface AuthConfig {
     authUrl: string,
-    cookies: CyStoreAuthCookie[],
+    cookies: AuthCookie[],
     secretStore: string,
     domains: string[],
 }
 
-export interface CyStoreAuthOptions {
+export interface AuthStoreOptions {
     configName: string;
     configBasePath?: string;
     authCallback?: () => Cypress.Chainable<any> | void;
 }
 
-export interface CyEnsureAuthOptions
-    extends CyStoreAuthOptions {
+export interface AuthEnsureOptions
+    extends AuthStoreOptions {
     customAuth?: (...args: any) => Cypress.Chainable<void>,
 }
 
-export const CyStoreAuthConfigScheme = Joi.object({
+export const AuthConfigScheme = Joi.object({
     cookies: Joi.array().items({ key: Joi.string().required() }).required(),
     authUrl: Joi.string().required(),
     secretStore: Joi.string().required(),
     domains: Joi.array().items(Joi.string().required()).required(),
 }).unknown();
 
-export interface CyStoreAuthSecret {
+export interface AuthSecrets {
     cookies: {
         [key: string]: string;
     }
 }
 
-export const CyStoreAuthSecretScheme = Joi.object({
+export const AuthSecretsScheme = Joi.object({
     cookies: Joi.object().required(),
 })
 
 declare global {
     namespace Cypress {
         export interface Chainable<Subject> {
-            loadAuthConfig(options: CyStoreAuthOptions): Chainable<CyStoreAuthConfig>;
-            loadAuth(options: CyStoreAuthOptions): Chainable<{ loaded: boolean, authUrl: string }>;
-            saveAuth(options: CyStoreAuthOptions): Chainable<void>;
-            clearAuth(options: CyStoreAuthOptions): Chainable<void>;
-            manualAuth(authUrl: string): Chainable<void>;
-            ensureAuth(options: CyEnsureAuthOptions): Chainable<void>;
+            authLoadConfig(options: AuthStoreOptions): Chainable<AuthConfig>;
+            authLoadSecrets(options: AuthStoreOptions): Chainable<{ loaded: boolean, authUrl: string }>;
+            authSaveSecrets(options: AuthStoreOptions): Chainable<void>;
+            authClearSecrets(options: AuthStoreOptions): Chainable<void>;
+            authManualAuth(authUrl: string): Chainable<void>;
+            authEnsureAuth(options: AuthEnsureOptions): Chainable<void>;
         }
     }
 }
 
-Cypress.Commands.add('manualAuth', (url: string) => {
+Cypress.Commands.add('authManualAuth', (url: string) => {
     const { HAKONIWA_CYPRESS_UNLIMIT_TIMEOUT } = Cypress.config('env');
     cy.visit(url);
     const confirmOptions = {
@@ -85,11 +85,11 @@ Cypress.Commands.add('manualAuth', (url: string) => {
     });
 });
 
-Cypress.Commands.add('ensureAuth', ({ configName, configBasePath, customAuth, authCallback }: CyEnsureAuthOptions) => {
-    cy.loadAuth({ configName, configBasePath, authCallback }).then(({ loaded, authUrl }) => {
+Cypress.Commands.add('authEnsureAuth', ({ configName, configBasePath, customAuth, authCallback }: AuthEnsureOptions) => {
+    cy.authLoadSecrets({ configName, configBasePath, authCallback }).then(({ loaded, authUrl }) => {
         if (!loaded) {
-            (customAuth && isFunction(customAuth) ? customAuth() : cy.manualAuth(authUrl));
-            cy.saveAuth({ configName, configBasePath });
+            (customAuth && isFunction(customAuth) ? customAuth() : cy.authManualAuth(authUrl));
+            cy.authSaveSecrets({ configName, configBasePath });
             authCallback && isFunction(authCallback) && authCallback();
         } else {
             const reAuth = (newUrl: string) => {
@@ -97,7 +97,7 @@ Cypress.Commands.add('ensureAuth', ({ configName, configBasePath, customAuth, au
                     const c = confirm('auth failed, clear secrets?')
                     cy.removeListener('url:changed', reAuth);
                     if (c) {
-                        cy.clearAuth({ configName, configBasePath, authCallback });
+                        cy.authClearSecrets({ configName, configBasePath, authCallback });
                         throw new Error("interrupt auth");
                     }
                 }
@@ -107,22 +107,23 @@ Cypress.Commands.add('ensureAuth', ({ configName, configBasePath, customAuth, au
     });
 });
 
-Cypress.Commands.add('loadAuthConfig', ({ configName, configBasePath }: CyStoreAuthOptions) => {
+Cypress.Commands.add('authLoadConfig', ({ configName, configBasePath }: AuthStoreOptions) => {
     if (!configBasePath) {
-        configBasePath = path.join(".", "hakoniwa", "auth");
+        const { HAKONIWA_AUTH_DIR } = Cypress.config('env');
+        configBasePath = HAKONIWA_AUTH_DIR as string;
     }
     const configPath = path.join(configBasePath, `${configName}.json`);
     return cy.readFile(configPath, "utf-8").then((config) => {
-        const { error, value } = CyStoreAuthConfigScheme.validate(config);
+        const { error, value } = AuthConfigScheme.validate(config);
         if (error) {
             throw error;
         }
-        return value as CyStoreAuthConfig;
+        return value as AuthConfig;
     });
 })
 
-Cypress.Commands.add('loadAuth', (options: CyStoreAuthOptions) => {
-    return cy.loadAuthConfig(options)
+Cypress.Commands.add('authLoadSecrets', (options: AuthStoreOptions) => {
+    return cy.authLoadConfig(options)
         .then((config) => {
             const { cookies: cookiesOptions, authUrl, secretStore, domains } = config;
             const res = {
@@ -130,13 +131,13 @@ Cypress.Commands.add('loadAuth', (options: CyStoreAuthOptions) => {
                 loaded: false,
                 authUrl,
             };
-            cy.task('readFileOrNull', secretStore)
+            cy.task('fsReadFileOrNull', secretStore)
                 .then((secretsContent) => {
                     if (!isString(secretsContent)) {
                         res.loaded = false;
                         res.toEnd = true;
                     } else {
-                        const { error, value: secrets } = CyStoreAuthSecretScheme.validate(Json5.parse(secretsContent));
+                        const { error, value: secrets } = AuthSecretsScheme.validate(Json5.parse(secretsContent));
                         if (error) {
                             throw error;
                         }
@@ -157,8 +158,8 @@ Cypress.Commands.add('loadAuth', (options: CyStoreAuthOptions) => {
         })
 })
 
-Cypress.Commands.add('clearAuth', (options: CyStoreAuthOptions) => {
-    return cy.loadAuthConfig(options)
+Cypress.Commands.add('authClearSecrets', (options: AuthStoreOptions) => {
+    return cy.authLoadConfig(options)
         .then((config) => {
             const { secretStore } = config;
             cy.log(secretStore);
@@ -166,11 +167,11 @@ Cypress.Commands.add('clearAuth', (options: CyStoreAuthOptions) => {
         })
 })
 
-Cypress.Commands.add('saveAuth', (options: CyStoreAuthOptions) => {
-    cy.loadAuthConfig(options)
+Cypress.Commands.add('authSaveSecrets', (options: AuthStoreOptions) => {
+    cy.authLoadConfig(options)
         .then(config => {
             const { cookies: cookiesOptions, secretStore } = config;
-            const secrets: CyStoreAuthSecret = {
+            const secrets: AuthSecrets = {
                 cookies: {}
             };
             let setCounter = 0;

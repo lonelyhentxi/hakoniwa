@@ -8,6 +8,7 @@ export const HAKONIWA_CYPRESS_DIR = path.join('.', 'cypress');
 export const HAKONIWA_CYPRESS_WEBPACK_CONFIG_PATH = path.join(HAKONIWA_CYPRESS_DIR, 'webpack.cypress.config.js');
 export const HAKONIWA_CYPRESS_TSCONFIG_PATH = path.join(HAKONIWA_CYPRESS_DIR, 'tsconfig.json');
 export const HAKONIWA_CYPRESS_PLUGINS_PATH = path.join(HAKONIWA_CYPRESS_DIR, 'plugins', 'index.js');
+export const HAKONIWA_PROXY_HTTPS_CERT_DIR = path.join(HAKONIWA_SECRETS_DIR, 'cert');
 export const HAKONIWA_PROXY_HOST = 'localhost';
 export const HAKONIWA_PROXY_IDENTIFIER = 'default';
 export const HAKONIWA_PROXY_PORT = 11111;
