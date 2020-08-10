@@ -1,6 +1,9 @@
 import {
-  ProxyStartServerOptions, ProxyStopServerOptions, ProxySetRuleOptions, ProxyOptions, 
-  ProxyIdentifyConfigOptions, ProxyIdentifyConfigsOptions, ProxyToggleConfigOptions, ProxySetValueOptions
+  ProxyStartServerOptions, ProxyStopServerOptions, 
+  ProxySetRuleOptions, ProxyOptions, 
+  ProxyIdentifyConfigsOptions, 
+  ProxyToggleConfigOptions, ProxySetValueOptions,
+  ProxyData, ProxyValue
 } from '../tasks/tasks.defs';
 import { PlainProxyRules as Rs, PlainProxyRule as R, ProxyRules, RegExpProxyPattern as P } from '../../whistle/index.browser';
 import './env';
@@ -10,7 +13,7 @@ export type PartialProxySetRuleOptions = Partial<ProxySetRuleOptions> & {
   ruleContent: string;
 };
 export type PartialProxySetValueOptions = Partial<ProxySetValueOptions> & {
-  name: string; value: string; hide: boolean; active: boolean; changed: boolean;
+  name: string; value?: string; hide?: boolean; active?: boolean; changed?: boolean; force?: boolean;
 }
 
 declare global {
@@ -32,9 +35,11 @@ declare global {
       proxyToggleInterceptHTTPSConnects(options?: Partial<ProxyToggleConfigOptions>):Chainable<void>;
       proxyToggleHTTP2(options?: Partial<ProxyToggleConfigOptions>): Chainable<void>;
       // Proxy Data
-      proxyGetData(options?: Partial<ProxyOptions>): Chainable<any>;
+      proxyGetData(options?: Partial<ProxyOptions>): Chainable<ProxyData>;
+      proxyGetValues(options?: Partial<ProxyOptions>): Chainable<ProxyValue[]>;
       // Proxy Values
-      proxySetValue(options?: Partial<ProxySetValueOptions>): Chainable<void>;
+      proxySetValue(options: PartialProxySetValueOptions): Chainable<void>;
+      proxyRemoveValues(options?: Partial<ProxyIdentifyConfigsOptions>): Chainable<void>;
     }
   }
 }
@@ -202,7 +207,21 @@ Cypress.Commands.add('proxyGetData', (options: Partial<ProxyOptions> = {}) => {
     port: HAKONIWA_PROXY_PORT,
     host: HAKONIWA_PROXY_HOST,
   }, options);
-  return cy.task('proxyGetData', options);
+  return cy.task('proxyGetData', config);
+})
+
+Cypress.Commands.add('proxyGetValues', (options: Partial<ProxyOptions> = {}) => {
+  const {
+    HAKONIWA_PROXY_PROTOCOL,
+    HAKONIWA_PROXY_PORT,
+    HAKONIWA_PROXY_HOST,
+  } = Cypress.config('env');
+  const config = Object.assign({
+    protocol: HAKONIWA_PROXY_PROTOCOL,
+    port: HAKONIWA_PROXY_PORT,
+    host: HAKONIWA_PROXY_HOST,
+  }, options);
+  return cy.task('proxyGetValues', config);
 })
 
 Cypress.Commands.add('proxyRemoveRules', (options: Partial<ProxyIdentifyConfigsOptions> = {}) => {
@@ -238,16 +257,16 @@ Cypress.Commands.add('proxyRemoveValues', (options: Partial<ProxyIdentifyConfigs
     host: HAKONIWA_PROXY_HOST,
   }, options);
   if (!options.names) {
-    cy.proxyGetData(config).then((data) => {
-      config.names = data.list;
-      cy.task('proxyRemoveRules', config);
+    cy.proxyGetValues(config).then((data) => {
+      config.names = data.map(v=>v.name);
+      cy.task('proxyRemoveValues', config);
     })
   } else {
-    cy.task('proxyRemoveRules', config);
+    cy.task('proxyRemoveValues', config);
   }
 })
 
-Cypress.Commands.add('proxySetValue', (options: Partial<ProxySetValueOptions>) => {
+Cypress.Commands.add('proxySetValue', (options: ProxySetValueOptions) => {
   const {
     HAKONIWA_PROXY_PROTOCOL,
     HAKONIWA_PROXY_PORT,
@@ -257,5 +276,20 @@ Cypress.Commands.add('proxySetValue', (options: Partial<ProxySetValueOptions>) =
     protocol: HAKONIWA_PROXY_PROTOCOL,
     port: HAKONIWA_PROXY_PORT,
     host: HAKONIWA_PROXY_HOST,
+    force: true,
+    active: true,
+    hide: false,
+    changed: false,
+    value: ''
   }, options);
+  cy.proxyGetValues(config).then((data) => {
+    const valueNames = new Set(data.map(v=>v.name));
+    if(valueNames.has(config.name) && config.force) {
+      cy.proxyRemoveRules({
+        ...config,
+        names: config.name
+      });
+    }
+    cy.task('proxySetValue', config);
+  })
 })

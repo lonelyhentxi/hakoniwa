@@ -28,13 +28,14 @@ declare global {
           task(task: "proxyStart", options: ProxyStartServerOptions): Chainable<null>;
           task(task: "proxyStop", options: ProxyStopServerOptions): Chainable<null>;
           // Proxy Data
-          task(task: "proxyGetData", options: ProxyOptions): Chainable<any>;
+          task(task: "proxyGetData", options: ProxyOptions): Chainable<ProxyData>;
+          task(task: "proxyGetValues", options: ProxyOptions): Chainable<ProxyValue[]>;
+
           // Proxy Rules
           task(task: "proxyToggleMultipleRules", options: ProxyToggleConfigOptions): Chainable<null>;
           task(task: "proxySetRule", options: ProxySetRuleOptions): Chainable<null>;
           task(task: "proxyRemoveRules", options: ProxyIdentifyConfigsOptions): Chainable<null>;
           // Proxy Values
-          task(task: "proxyAddValue", options: ProxyIdentifyConfigOptions): Chainable<null>;
           task(task: "proxySetValue", options: ProxySetValueOptions): Chainable<null>;
           task(task: "proxyRemoveValues", options: ProxyIdentifyConfigsOptions): Chainable<null>;
           // HTTPS & HTTP2

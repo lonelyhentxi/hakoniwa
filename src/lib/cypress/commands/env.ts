@@ -15,6 +15,7 @@ import {
   HAKONIWA_DAEMON_PROXY_PORT,
   HAKONIWA_DAEMON_PROXY_RULE_NAME,
   HAKONIWA_CYPRESS_UNLIMIT_TIMEOUT,
+  HAKONIWA_CYPRESS_WAIT
 } from '../../../constants/constants.browser';
 
 const env = Object.assign({
@@ -34,6 +35,7 @@ const env = Object.assign({
   HAKONIWA_DAEMON_PROXY_PORT,
   HAKONIWA_DAEMON_PROXY_RULE_NAME,
   HAKONIWA_CYPRESS_UNLIMIT_TIMEOUT,
+  HAKONIWA_CYPRESS_WAIT
 }, Cypress.config('env'));
 
 Cypress.config('env', env);

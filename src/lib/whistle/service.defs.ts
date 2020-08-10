@@ -33,7 +33,13 @@ export interface ProxyOptions {
 
 export type ToggleConfigOptions = ProxyOptions & { value: boolean };
 export type IdentifyConfigOptions = ProxyOptions & { name: string };
-export type SetValueOptions = ProxyOptions & { name: string; value: string; hide: boolean; active: boolean; changed: boolean; };
+export type SetValueOptions = ProxyOptions & { 
+  name: string; 
+  value?: string; 
+  hide?: boolean; 
+  active?: boolean; 
+  changed?: boolean; 
+};
 
 export interface ProxyValue {
   name: string;
@@ -42,5 +48,4 @@ export interface ProxyValue {
 
 export interface ProxyData {
   list: string[];
-  values: ProxyValue[];
 }

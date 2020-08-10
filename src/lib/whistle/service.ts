@@ -95,14 +95,6 @@ export async function toggleHTTP2(options: ToggleConfigOptions) {
     });
 }
 
-export async function addValue(options: IdentifyConfigOptions) {
-    return await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/values/add`, {
-        method: 'POST',
-        body: JSON.stringify({ name: options.name }),
-        headers: { 'Content-Type': 'application/json' }
-    });
-}
-
 export async function setValue(options: SetValueOptions) {
     return await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/values/add`, {
         method: 'POST',
@@ -125,4 +117,12 @@ export async function removeValue(options: IdentifyConfigOptions) {
         }),
         headers: { 'Content-Type': 'application/json' }
     })
+}
+
+export async function getValues(options: ProxyOptions): Promise<ProxyValue[]> {
+    const res = await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/values/get`, {
+        method: 'GET'
+    });
+    const json = await res.json();
+    return json.values;
 }

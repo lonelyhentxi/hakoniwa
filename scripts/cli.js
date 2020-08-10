@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const { execSync } = require('child_process');
 const fs = require('fs');
+const constants = require('../constants/constants.node');
 const {
   HAKONIWA_PROXY_DIR,
   HAKONIWA_SECRETS_DIR,
@@ -13,12 +14,17 @@ const {
   HAKONIWA_CYPRESS_TSCONFIG_PATH,
   HAKONIWA_CYPRESS_PLUGINS_PATH,
   HAKONIWA_PROXY_HTTPS_CERT_DIR
-} = require('../constants/constants.node');
+} = {
+  ...constants,
+  ...process.env
+};
+
 const { 
   startServerSync, 
   stopServerSync,
   toggleHTTP2,
   toggleMultipleRules,
+  toggleInterceptHTTPSConnects
 } = require('../lib/whistle/service');
 
 const [,,command,...args] = process.argv;
@@ -165,6 +171,12 @@ module.exports = (on, config) => {
         value: true
       }),
       toggleHTTP2({
+        protocol: HAKONIWA_PROXY_PROTOCOL,
+        host: HAKONIWA_PROXY_HOST,
+        port: HAKONIWA_DAEMON_PROXY_PORT,
+        value: true
+      }),
+      toggleInterceptHTTPSConnects({
         protocol: HAKONIWA_PROXY_PROTOCOL,
         host: HAKONIWA_PROXY_HOST,
         port: HAKONIWA_DAEMON_PROXY_PORT,

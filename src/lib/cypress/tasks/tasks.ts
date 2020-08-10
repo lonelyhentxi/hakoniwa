@@ -3,7 +3,7 @@ import {
     startServerSync, stopServerSync, 
     setRuleSync, toggleMultipleRules,  removeRule,
     getData, toggleInterceptHTTPSConnects, toggleHTTP2, 
-    addValue, setValue, removeValue
+    setValue, removeValue, getValues
 } from '../../whistle/service';
 import {
     ProxyStartServerOptions, ProxyStopServerOptions, ProxySetRuleOptions, ProxyOptions,
@@ -54,16 +54,15 @@ export const cyTasks = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOp
         proxyGetData: async (options: ProxyOptions) => {
             return await getData(options);
         },
+        proxyGetValues: async (options: ProxyOptions) => {
+            return await getValues(options);
+        },
         proxyRemoveRules: async (options: ProxyIdentifyConfigsOptions) => {
             const configs = splitIterableField(options);
             await Promise.all(configs.map(c=>removeRule(c)));
             return null;
         },
-        proxyAddValues: async (options: ProxyIdentifyConfigOptions) => {
-            await addValue(options);
-            return null;
-        },
-        proxySetValues: async (options: ProxySetValueOptions) => {
+        proxySetValue: async (options: ProxySetValueOptions) => {
             await setValue(options);
             return null;
         },
