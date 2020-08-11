@@ -33,6 +33,10 @@ yarn install --dev hakoniwa cypress cross-env webpack typescript ts-loader @cypr
     - [ ] Auto remove console and debugger when releasing
 - [ ] Debugging mode
     - [ ] Bundle version checker
+    - [ ] invoke, spy and stub of libraries such as react
+        - [ ] react support
+        - [ ] vue support
+        - [ ] angular support
 - [ ] Advanced signing in and authentication
 - [ ] Better command line tools
 
