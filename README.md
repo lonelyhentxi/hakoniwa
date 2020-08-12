@@ -35,6 +35,7 @@ yarn install --dev hakoniwa cypress cross-env webpack typescript ts-loader @cypr
     - [ ] Bundle version checker
     - [ ] invoke, spy and stub of libraries such as react
         - [ ] react support
+            - [x] basic
         - [ ] vue support
         - [ ] angular support
 - [ ] Advanced signing in and authentication

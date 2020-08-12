@@ -120,3 +120,20 @@ export class ValueOp implements IProxyOp {
         return this.op();
     }
 }
+
+export class FileOp implements IProxyOp {
+    protocol:string;
+    path: string;
+    autocomplete: boolean;
+    constructor(path: string, protocol: string = 'xfile', autocomplete = true) {
+        this.path = path;
+        this.protocol = protocol;
+        this.autocomplete = autocomplete;
+    }
+    op() {
+        return this.autocomplete?`${this.protocol}://${this.path.replace(/ /g, '%20')}`:`${this.protocol}://<${this.path.replace(/ /g, '%20')}>`;
+    }
+    toString() {
+        return this.op();
+    }
+}
