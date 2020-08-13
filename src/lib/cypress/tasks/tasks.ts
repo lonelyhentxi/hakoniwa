@@ -11,8 +11,11 @@ import {
     ProxySetValueOptions
 } from './tasks.defs';
 import { splitIterableField } from './tasks.tools';
+// @ts-ignore
+import * as SkipAndOnlyUI from 'cypress-skip-and-only-ui/task';
 
 export const cyTasks = (on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) => {
+    on('task', SkipAndOnlyUI);
     on('task', {
         fsReadFileOrNull: (path: string) => {
             if(!fs.existsSync(path)) {

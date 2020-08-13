@@ -28,6 +28,8 @@ yarn install --dev hakoniwa cypress cross-env webpack typescript ts-loader @cypr
     - [ ] Https supports
     - [x] Enable HTTP2
 - [ ] Tracking logging validation
+    - [x] Basic tools
+    - [ ] Advance validation
 - [ ] Release helper
     - [ ] Release observer
     - [ ] Auto remove console and debugger when releasing

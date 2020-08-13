@@ -7,7 +7,7 @@ export function splitIterableField(options: ProxyIdentifyConfigsOptions): ProxyI
   const names = options.names instanceof Array ? options.names : [options.names];
   for(const k of names) {
     const fromCopy = Object.assign({ name: k }, options);
-    delete fromCopy.names;
+    delete (fromCopy as any).names;
     res.push(fromCopy);
   }
   return res;
