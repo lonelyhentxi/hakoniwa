@@ -25,7 +25,6 @@ export interface BinaryRes {
   opProtocol?: string;
   pattern: ProxyPattern;
   moreOps?: ProxyOp[],
-  prevent?: boolean;
   autocomplete?: boolean;
 }
 
@@ -75,16 +74,13 @@ Cypress.Commands.add('mockJSONRes',(options: JSONRes) => {
 });
 
 Cypress.Commands.add('mockBinaryRes', (options: BinaryRes) => {
-  const prevent = options.prevent!==undefined ? !!options.prevent : true;
   const config = Object.assign({
     statusCode: 200,
     moreOps: [],
-    prevent: true,
     opProtocol: 'xfile',
-    autocomplete: false
+    autocomplete: true
   }, options);
   const ops = [
-    prevent ? new StatusOp(config.statusCode): new ReplaceStatusOp(config.statusCode),
     new FileOp(config.path, config.opProtocol, config.autocomplete),
     ...config.moreOps
   ];
