@@ -2,7 +2,9 @@
 
 Miniature wonder toolbox for front-end development.
 
-## Design
+**Warning: Early stage of development now!**
+
+## Initial Design
 
 1. can works with or contains a proxy that proxy the requests and the responses of your program.
 2. can define schema to test that:
@@ -14,9 +16,19 @@ Miniature wonder toolbox for front-end development.
 ## Install
 
 ```shell
-npm install --save-dev hakoniwa cypress cross-env webpack typescript ts-loader @cypress/webpack-preprocessor
-# or
-yarn install --dev hakoniwa cypress cross-env webpack typescript ts-loader @cypress/webpack-preprocessor
+git clone https://github.com/lonelyhentai/hakoniwa.git
+cd hakoniwa
+npm link
+cd /path/to/your-project
+npm install --save-dev cypress cross-env webpack typescript ts-loader @cypress/webpack-preprocessor
+npm link hakoniwa
+hakoniwa-cli init
+```
+
+## Run
+
+```shell
+hakoniwa-cli open
 ```
 
 ## RoadMap
@@ -24,9 +36,10 @@ yarn install --dev hakoniwa cypress cross-env webpack typescript ts-loader @cypr
 ### Version 0.2.0
 
 - [ ] Advanced proxy functions
-    - [ ] Proxy values supports 
-    - [ ] Https supports
+    - [x] Proxy values supports 
+    - [ ] HTTPS supports
     - [x] Enable HTTP2
+	- [x] Simple empty response and binary response support
 - [ ] Tracking logging validation
     - [x] Basic tools
     - [ ] Advance validation
@@ -36,10 +49,10 @@ yarn install --dev hakoniwa cypress cross-env webpack typescript ts-loader @cypr
 - [ ] Debugging mode
     - [ ] Bundle version checker
     - [ ] invoke, spy and stub of libraries such as react
-        - [ ] react support
-            - [x] basic
-        - [ ] vue support
-        - [ ] angular support
+        - [ ] React support
+            - [x] Basic
+        - [ ] Vue support
+        - [ ] Angular support
 - [ ] Advanced signing in and authentication
 - [ ] Better command line tools
 

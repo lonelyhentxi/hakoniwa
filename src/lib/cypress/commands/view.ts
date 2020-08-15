@@ -8,7 +8,7 @@ declare global {
   namespace Cypress {
     export interface Chainable<Subject> {
       viewSetScrollbar(options?: ViewSetScrollbarOptions): Chainable<void>;
-      viewAutoSetScrollbar(options: ViewAutoSetScrollbarOptions): Chainable<void>;
+      viewAutoSetScrollbar(options?: ViewAutoSetScrollbarOptions): Chainable<void>;
     }
   }
 }
@@ -30,7 +30,7 @@ const setScrollbar = (options: ViewSetScrollbarOptions = {}) => {
 
 Cypress.Commands.add('viewSetScrollbar', setScrollbar);
 
-Cypress.Commands.add('viewAutoSetScrollbar', (options: ViewAutoSetScrollbarOptions) => {
+Cypress.Commands.add('viewAutoSetScrollbar', (options: ViewAutoSetScrollbarOptions = {}) => {
   const config = Object.assign({
     cancellationToken: 'autoSetScrollbar'
   }, options);
