@@ -9,7 +9,7 @@ import './proxy';
 import './mock';
 import './react';
 import './tracking';
-import './react';
+import './view';
 
 export * as promisify from 'cypress-promise';
 
@@ -20,4 +20,4 @@ export * from './proxy';
 export * from './mock';
 export * from './react';
 export * from './tracking';
-export * from './react';
+export * from './view';

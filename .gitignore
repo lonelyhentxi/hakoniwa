@@ -5,3 +5,4 @@ temp/
 /constants
 /index.*.d.ts
 /index.*.js
+.vscode/
