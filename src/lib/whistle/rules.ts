@@ -1,59 +1,60 @@
-import { ProxyRule } from './rule';
+import {ProxyRule} from './rule';
 
 export interface IProxyRules {
-    name: string;
-    content: () => string;
+  name: string;
+  content: () => string;
 }
 
 export type ProxyRules = IProxyRules;
 
 export class RawProxyRules implements IProxyRules {
-    name: string;
-    rawContent: string;
-    constructor(name: string, content: string) {
-        this.name = name;
-        this.rawContent = content;
-    }
-    content() {
-        return this.rawContent;
-    }
+  name: string;
+  rawContent: string;
+  constructor(name: string, content: string) {
+    this.name = name;
+    this.rawContent = content;
+  }
+  content() {
+    return this.rawContent;
+  }
 }
 
-
 export class PlainProxyRules implements IProxyRules {
-    name: string;
-    rules: ProxyRule[]
-    constructor(name: string, rules: ProxyRule[] | ProxyRule) {
-        this.name = name;
-        this.rules = rules instanceof Array ? rules : [rules];
-    }
-    content() {
-        return `
+  name: string;
+  rules: ProxyRule[];
+  constructor(name: string, rules: ProxyRule[] | ProxyRule) {
+    this.name = name;
+    this.rules = rules instanceof Array ? rules : [rules];
+  }
+  content() {
+    return `
         exports.name = \`${this.name}\`;
-        exports.rules = \`${this.rules.map(r => r.toString()).join("\n")}\`;
+        exports.rules = \`${this.rules.map(r => r.toString()).join('\n')}\`;
         `;
-    }
+  }
 }
 
 export class ExtendedProxyRules implements IProxyRules {
-    name: string;
-    plugins: string[];
-    rules: ProxyRule[];
-    constructor(name: string, rules: ProxyRule[] | ProxyRule, plugins: string[] | string) {
-        this.name = name;
-        this.rules = rules instanceof Array ? rules : [rules];
-        this.plugins = plugins instanceof Array ? plugins : [plugins];
-    }
-    content() {
-        return `
+  name: string;
+  plugins: string[];
+  rules: ProxyRule[];
+  constructor(name: string, rules: ProxyRule[] | ProxyRule, plugins: string[] | string) {
+    this.name = name;
+    this.rules = rules instanceof Array ? rules : [rules];
+    this.plugins = plugins instanceof Array ? plugins : [plugins];
+  }
+  content() {
+    return `
         const assert = require('assert');
         module.exports = (cb, util) => {
-            assert(${this.plugins.map(p => `util.existsPlugin(${p})`).join("&&")}, \`please install plugins: ${this.plugins.join(",")}\`);
+            assert(${this.plugins
+              .map(p => `util.existsPlugin(${p})`)
+              .join('&&')}, \`please install plugins: ${this.plugins.join(',')}\`);
             cb({
                 name: \`${name}\`,
-                rules: \`${this.rules.map(r => r.toString()).join("\n")}\`
+                rules: \`${this.rules.map(r => r.toString()).join('\n')}\`
             });
         };
-        `
-    }
+        `;
+  }
 }

@@ -1,8 +1,8 @@
-import { searchReactNode } from '../../hack/react';
+import {searchReactNode} from '../../hack/react';
 
 export interface ReactNodeIdentifierOptions {
   el: string | HTMLElement | any;
-};
+}
 
 export interface ReactNodeMethodOptions extends ReactNodeIdentifierOptions {
   method: string;
@@ -10,7 +10,7 @@ export interface ReactNodeMethodOptions extends ReactNodeIdentifierOptions {
 
 export interface ReactNodeInvokeOptions extends ReactNodeMethodOptions {
   args?: any[];
-};
+}
 
 declare global {
   namespace Cypress {
@@ -22,12 +22,11 @@ declare global {
 }
 
 Cypress.Commands.add('reactGet', (options: ReactNodeIdentifierOptions) => {
-  if (typeof (options.el) === 'string') {
-    return cy.get(options.el)
-      .then((el) => {
-        const reactNode = searchReactNode(el);
-        return cy.wrap(reactNode);
-      });
+  if (typeof options.el === 'string') {
+    return cy.get(options.el).then(el => {
+      const reactNode = searchReactNode(el);
+      return cy.wrap(reactNode);
+    });
   } else {
     const reactNode = searchReactNode(options.el);
     return cy.wrap(reactNode);
@@ -35,9 +34,12 @@ Cypress.Commands.add('reactGet', (options: ReactNodeIdentifierOptions) => {
 });
 
 Cypress.Commands.add('reactInvoke', (options: ReactNodeInvokeOptions) => {
-  const config = Object.assign({
-    args: []
-  }, options);
+  const config = Object.assign(
+    {
+      args: [],
+    },
+    options,
+  );
   return cy.reactGet(config).then(reactNode => {
     return cy.wrap(reactNode[config.method](...config.args));
   });

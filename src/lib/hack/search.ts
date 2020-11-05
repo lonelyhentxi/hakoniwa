@@ -1,6 +1,6 @@
-import { Queue } from 'queue-typescript';
+import {Queue} from 'queue-typescript';
 
-export function searchMatching(root: object, matching: (curr: any) => boolean): any | null {
+export function searchMatching(root: Object, matching: (curr: any) => boolean): any | null {
   const note = new Set();
   const queue = new Queue<any>(root);
   queue.enqueue(root);
@@ -10,23 +10,20 @@ export function searchMatching(root: object, matching: (curr: any) => boolean): 
     if (matching(current)) {
       return current;
     }
-    const children = current===null || current === undefined ? []: Object.keys(current);
+    const children = current === null || current === undefined ? [] : Object.keys(current);
     children.forEach(k => {
       try {
         const o = (current as any)[k];
         if (!note.has(o)) {
           queue.enqueue(o);
         }
-      } catch (e) {
-
-      }
-    })
+      } catch (e) {}
+    });
   }
   return null;
 }
 
-
-export function searchMatchings(root: object, matching: (curr: any) => boolean): any[] {
+export function searchMatchings(root: Object, matching: (curr: any) => boolean): any[] {
   const note = new Set();
   const queue = new Queue<any>(root);
   queue.enqueue(root);
@@ -37,17 +34,15 @@ export function searchMatchings(root: object, matching: (curr: any) => boolean):
     if (matching(current)) {
       res.push(current);
     }
-    const children = current===null || current === undefined ? []: Object.keys(current);
+    const children = current === null || current === undefined ? [] : Object.keys(current);
     children.forEach(k => {
       try {
         const o = (current as any)[k];
         if (!note.has(o)) {
           queue.enqueue(o);
         }
-      } catch (e) {
-
-      }
-    })
+      } catch (e) {}
+    });
   }
   return res;
 }

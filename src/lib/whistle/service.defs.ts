@@ -28,22 +28,22 @@ export interface SetRuleOptions {
 export interface ProxyOptions {
   host: string;
   port: number;
-  protocol: 'http' | 'https'
+  protocol: 'http' | 'https';
 }
 
-export type ToggleConfigOptions = ProxyOptions & { value: boolean };
-export type IdentifyConfigOptions = ProxyOptions & { name: string };
-export type SetValueOptions = ProxyOptions & { 
-  name: string; 
-  value?: string; 
-  hide?: boolean; 
-  active?: boolean; 
-  changed?: boolean; 
+export type ToggleConfigOptions = ProxyOptions & {value: boolean};
+export type IdentifyConfigOptions = ProxyOptions & {name: string};
+export type SetValueOptions = ProxyOptions & {
+  name: string;
+  value?: string;
+  hide?: boolean;
+  active?: boolean;
+  changed?: boolean;
 };
 
 export interface ProxyValue {
   name: string;
-  data: string;  
+  data: string;
 }
 
 export interface ProxyData {

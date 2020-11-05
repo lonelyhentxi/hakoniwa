@@ -1,7 +1,7 @@
-import { EventCancellationOptions } from './event';
+import {EventCancellationOptions} from './event';
 import './event';
 
-export type ViewSetScrollbarOptions = { styles?: string };
+export type ViewSetScrollbarOptions = {styles?: string};
 export type ViewAutoSetScrollbarOptions = Partial<EventCancellationOptions> & ViewSetScrollbarOptions;
 
 declare global {
@@ -16,7 +16,7 @@ declare global {
 const setScrollbar = (options: ViewSetScrollbarOptions = {}) => {
   const styles = options.styles || '0px';
   const $head = Cypress.$('head');
-  ($head).append(`<style>
+  $head.append(`<style>
   body::-webkit-scrollbar {
     width: ${styles};
   }
@@ -26,17 +26,20 @@ const setScrollbar = (options: ViewSetScrollbarOptions = {}) => {
     scrollbar-width: ${styles};
   }
   </style>`);
-}
+};
 
 Cypress.Commands.add('viewSetScrollbar', setScrollbar);
 
 Cypress.Commands.add('viewAutoSetScrollbar', (options: ViewAutoSetScrollbarOptions = {}) => {
-  const config = Object.assign({
-    cancellationToken: 'autoSetScrollbar'
-  }, options);
+  const config = Object.assign(
+    {
+      cancellationToken: 'autoSetScrollbar',
+    },
+    options,
+  );
   cy.eventAddAutoHandler({
     cancellationToken: config.cancellationToken,
     name: 'window:before:load',
     handler: () => setScrollbar(config),
-  })
+  });
 });

@@ -1,10 +1,15 @@
 import './env';
 import './proxy';
-import { 
+import {
   PlainProxyRules as Rs,
   PlainProxyRule as R,
-  ProxyPattern, ValueOp, ReplaceStatusOp, ResTypeOp,
-  ProxyOp, StatusOp, FileOp
+  ProxyPattern,
+  ValueOp,
+  ReplaceStatusOp,
+  ResTypeOp,
+  ProxyOp,
+  StatusOp,
+  FileOp,
 } from '../../whistle/index.browser';
 
 export interface JSONRes {
@@ -13,7 +18,7 @@ export interface JSONRes {
   statusCode?: number;
   pattern: ProxyPattern;
   opProtocol?: string;
-  moreOps?: ProxyOp[],
+  moreOps?: ProxyOp[];
   prevent?: boolean;
 }
 
@@ -24,7 +29,7 @@ export interface BinaryRes {
   statusCode?: number;
   opProtocol?: string;
   pattern: ProxyPattern;
-  moreOps?: ProxyOp[],
+  moreOps?: ProxyOp[];
   autocomplete?: boolean;
 }
 
@@ -33,8 +38,8 @@ export interface EmptyRes {
   type?: string;
   statusCode?: number;
   pattern: ProxyPattern;
-  moreOps?: ProxyOp[],
-  prevent?: boolean; 
+  moreOps?: ProxyOp[];
+  prevent?: boolean;
 }
 
 declare global {
@@ -47,71 +52,68 @@ declare global {
   }
 }
 
-Cypress.Commands.add('mockJSONRes',(options: JSONRes) => {
-  const prevent = options.prevent!==undefined ? !!options.prevent : true;
-  const config = Object.assign({
-    statusCode: 200,
-    opProtocol: prevent?'resBody':'resMerge',
-    moreOps: [],
-    prevent: true
-  }, options);
+Cypress.Commands.add('mockJSONRes', (options: JSONRes) => {
+  const prevent = options.prevent !== undefined ? !!options.prevent : true;
+  const config = Object.assign(
+    {
+      statusCode: 200,
+      opProtocol: prevent ? 'resBody' : 'resMerge',
+      moreOps: [],
+      prevent: true,
+    },
+    options,
+  );
   const rules = new Rs(
     config.name,
     new R(config.pattern, [
-      prevent ? new StatusOp(config.statusCode): new ReplaceStatusOp(config.statusCode),
+      prevent ? new StatusOp(config.statusCode) : new ReplaceStatusOp(config.statusCode),
       new ResTypeOp('json'),
       new ValueOp(config.opProtocol, config.name),
-      ...config.moreOps
-    ])
+      ...config.moreOps,
+    ]),
   );
   cy.proxySetValue({
     name: config.name,
     value: JSON.stringify(options.body),
     changed: false,
-    force: true
+    force: true,
   });
   cy.proxyUseRule(rules);
 });
 
 Cypress.Commands.add('mockBinaryRes', (options: BinaryRes) => {
-  const config = Object.assign({
-    statusCode: 200,
-    moreOps: ([] as ProxyOp[]),
-    opProtocol: 'xfile',
-    autocomplete: true
-  }, options);
-  const ops = [
-    new FileOp(config.path, config.opProtocol, config.autocomplete),
-    ...config.moreOps
-  ];
-  if(config.type) {
+  const config = Object.assign(
+    {
+      statusCode: 200,
+      moreOps: [] as ProxyOp[],
+      opProtocol: 'xfile',
+      autocomplete: true,
+    },
+    options,
+  );
+  const ops = [new FileOp(config.path, config.opProtocol, config.autocomplete), ...config.moreOps];
+  if (config.type) {
     ops.push(new ResTypeOp(config.type));
   }
-  const rules = new Rs(
-    config.name,
-    new R(config.pattern, ops)
-  );
+  const rules = new Rs(config.name, new R(config.pattern, ops));
   cy.proxyUseRule(rules);
 });
 
 Cypress.Commands.add('mockEmptyRes', (options: EmptyRes) => {
-  const prevent = options.prevent!==undefined ? !!options.prevent : true;
-  const config = Object.assign({
-    statusCode: 200,
-    moreOps: ([] as ProxyOp[]),
-    prevent: true,
-    type: 'text/plain'
-  }, options);
-  const ops = [
-    prevent ? new StatusOp(config.statusCode): new ReplaceStatusOp(config.statusCode),
-    ...config.moreOps
-  ];
-  if(config.type) {
+  const prevent = options.prevent !== undefined ? !!options.prevent : true;
+  const config = Object.assign(
+    {
+      statusCode: 200,
+      moreOps: [] as ProxyOp[],
+      prevent: true,
+      type: 'text/plain',
+    },
+    options,
+  );
+  const ops = [prevent ? new StatusOp(config.statusCode) : new ReplaceStatusOp(config.statusCode), ...config.moreOps];
+  if (config.type) {
     ops.push(new ResTypeOp(config.type));
   }
-  const rules = new Rs(
-    config.name,
-    new R(config.pattern, ops)
-  );
+  const rules = new Rs(config.name, new R(config.pattern, ops));
   cy.proxyUseRule(rules);
 });

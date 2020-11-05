@@ -26,7 +26,7 @@ export class DefaultTimelineTrackingLogger<Log, Mark = any> implements TimelineT
     this.logs.push(log);
     this.lastUpdateTime = Date.now();
   }
-  when({ froms, tos }: TimelineTrackingLoggerWhenOptions<Mark> = {}): Log[] {
+  when({froms, tos}: TimelineTrackingLoggerWhenOptions<Mark> = {}): Log[] {
     const from = Math.max(0, ...(froms ?? []).map(m => this.marks.get(m) ?? 0));
     const to = Math.min(this.logs.length, ...(tos ?? []).map(m => this.marks.get(m) ?? this.logs.length));
     return this.logs.slice(from, to);

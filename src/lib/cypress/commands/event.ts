@@ -20,11 +20,11 @@ declare global {
 
 Cypress.Commands.add('eventCancelAutoHandler', (options: EventCancellationOptions) => {
   cy.emit(`eventCancelAutoHandler:${options.cancellationToken}`, true);
-})
+});
 
 Cypress.Commands.add('eventAddAutoHandler', (options: EventAutoHandlerOptions) => {
   cy.once(`eventCancelAutoHandler:${options.cancellationToken}`, () => {
     cy.removeListener(options.name, options.handler);
-  })
+  });
   cy.on(options.name, options.handler);
-})
+});
