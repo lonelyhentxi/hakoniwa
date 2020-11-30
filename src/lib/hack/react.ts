@@ -10,8 +10,7 @@ export function elToReactNode(el: any) {
   }
   for (const key of keys) {
     if (key.startsWith('__reactInternalInstance$')) {
-      const fiberNode = (el as any)[key];
-      return fiberNode && fiberNode.return && fiberNode.return.stateNode;
+      return (el as any)[key];
     }
   }
   return null;

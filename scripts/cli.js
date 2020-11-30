@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { execSync } = require('child_process');
+const {execSync} = require('child_process');
 const fs = require('fs');
 const constants = require('../constants/constants.node');
 const {
@@ -13,30 +13,31 @@ const {
   HAKONIWA_CYPRESS_WEBPACK_CONFIG_PATH,
   HAKONIWA_CYPRESS_TSCONFIG_PATH,
   HAKONIWA_CYPRESS_PLUGINS_PATH,
-  HAKONIWA_PROXY_HTTPS_CERT_DIR
+  HAKONIWA_PROXY_HTTPS_CERT_DIR,
 } = {
   ...constants,
-  ...process.env
+  ...process.env,
 };
 
-const { 
-  startServerSync, 
+const {
+  startServerSync,
   stopServerSync,
   toggleHTTP2,
   toggleMultipleRules,
-  toggleInterceptHTTPSConnects
+  toggleInterceptHTTPSConnects,
 } = require('../lib/whistle/service');
 
-const [,,command,...args] = process.argv;
-(async ()=> {
-// @TODO: add cli help
-if(command==='init') {
-  const paths = [HAKONIWA_AUTH_DIR,HAKONIWA_SECRETS_DIR,HAKONIWA_PROXY_DIR, HAKONIWA_PROXY_HTTPS_CERT_DIR];
-  for(const p of paths) {
-    fs.mkdirSync(p, { recursive: true });
-  }
-  fs.writeFileSync(HAKONIWA_CYPRESS_WEBPACK_CONFIG_PATH, 
-`const path = require('path')
+const [, , command, ...args] = process.argv;
+(async () => {
+  // @TODO: add cli help
+  if (command === 'init') {
+    const paths = [HAKONIWA_AUTH_DIR, HAKONIWA_SECRETS_DIR, HAKONIWA_PROXY_DIR, HAKONIWA_PROXY_HTTPS_CERT_DIR];
+    for (const p of paths) {
+      fs.mkdirSync(p, {recursive: true});
+    }
+    fs.writeFileSync(
+      HAKONIWA_CYPRESS_WEBPACK_CONFIG_PATH,
+      `const path = require('path')
 
 module.exports = {
   module: {
@@ -51,9 +52,11 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js']
   }
-}`);
-  fs.writeFileSync(HAKONIWA_CYPRESS_TSCONFIG_PATH, 
-`
+}`,
+    );
+    fs.writeFileSync(
+      HAKONIWA_CYPRESS_TSCONFIG_PATH,
+      `
 {
   "compilerOptions": {
     /* Basic Options */
@@ -124,9 +127,11 @@ module.exports = {
   },
   "include": ["./**/*.ts"]
 }
-`)
-  fs.writeFileSync(HAKONIWA_CYPRESS_PLUGINS_PATH,
-`/// <reference types="cypress" />
+`,
+    );
+    fs.writeFileSync(
+      HAKONIWA_CYPRESS_PLUGINS_PATH,
+      `/// <reference types="cypress" />
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -153,47 +158,49 @@ module.exports = (on, config) => {
   on("file:preprocessor", webpack(options));
   cyTasks(on, config);
 }
-`)
-} else if(command==='open') {
-  const proxyServer = `${HAKONIWA_PROXY_PROTOCOL}://${HAKONIWA_PROXY_HOST}:${HAKONIWA_DAEMON_PROXY_PORT}`;
-  startServerSync({
-    baseDir: HAKONIWA_PROXY_DIR,
-    identifier: HAKONIWA_DAEMON_PROXY_IDENTIFIER,
-    port: HAKONIWA_DAEMON_PROXY_PORT,
-    certDir: HAKONIWA_PROXY_HTTPS_CERT_DIR
-  })
-  try {
-    await Promise.all([
-      toggleMultipleRules({
-        protocol: HAKONIWA_PROXY_PROTOCOL,
-        host: HAKONIWA_PROXY_HOST,
-        port: HAKONIWA_DAEMON_PROXY_PORT,
-        value: true
-      }),
-      toggleHTTP2({
-        protocol: HAKONIWA_PROXY_PROTOCOL,
-        host: HAKONIWA_PROXY_HOST,
-        port: HAKONIWA_DAEMON_PROXY_PORT,
-        value: true
-      }),
-      toggleInterceptHTTPSConnects({
-        protocol: HAKONIWA_PROXY_PROTOCOL,
-        host: HAKONIWA_PROXY_HOST,
-        port: HAKONIWA_DAEMON_PROXY_PORT,
-        value: true
-      })
-    ])
-    execSync(`cross-env HTTP_PROXY='${proxyServer}' HTTPS_PROXY='${proxyServer}' cypress open`, {
-      stdio: 'inherit',
-      cwd: process.cwd()
-    });
-  } finally {
-    stopServerSync({
+`,
+    );
+  } else if (command === 'open') {
+    const proxyServer = `${HAKONIWA_PROXY_PROTOCOL}://${HAKONIWA_PROXY_HOST}:${HAKONIWA_DAEMON_PROXY_PORT}`;
+    startServerSync({
       baseDir: HAKONIWA_PROXY_DIR,
       identifier: HAKONIWA_DAEMON_PROXY_IDENTIFIER,
+      port: HAKONIWA_DAEMON_PROXY_PORT,
+      certDir: HAKONIWA_PROXY_HTTPS_CERT_DIR,
     });
+    try {
+      await Promise.all([
+        toggleMultipleRules({
+          protocol: HAKONIWA_PROXY_PROTOCOL,
+          host: HAKONIWA_PROXY_HOST,
+          port: HAKONIWA_DAEMON_PROXY_PORT,
+          value: true,
+        }),
+        toggleHTTP2({
+          protocol: HAKONIWA_PROXY_PROTOCOL,
+          host: HAKONIWA_PROXY_HOST,
+          port: HAKONIWA_DAEMON_PROXY_PORT,
+          value: true,
+        }),
+        toggleInterceptHTTPSConnects({
+          protocol: HAKONIWA_PROXY_PROTOCOL,
+          host: HAKONIWA_PROXY_HOST,
+          port: HAKONIWA_DAEMON_PROXY_PORT,
+          value: true,
+        }),
+      ]);
+      console.log(`cross-env HTTP_PROXY='${proxyServer}' HTTPS_PROXY='${proxyServer}' cypress open`);
+      execSync(`cross-env HTTP_PROXY='${proxyServer}' HTTPS_PROXY='${proxyServer}' cypress open`, {
+        stdio: 'inherit',
+        cwd: process.cwd(),
+      });
+    } finally {
+      stopServerSync({
+        baseDir: HAKONIWA_PROXY_DIR,
+        identifier: HAKONIWA_DAEMON_PROXY_IDENTIFIER,
+      });
+    }
+  } else {
+    throw new Error('invalid command');
   }
-} else {
-  throw new Error('invalid command');
-}
 })();
