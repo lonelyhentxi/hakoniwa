@@ -6,6 +6,7 @@ export type ViewAutoSetScrollbarOptions = Partial<EventCancellationOptions> & Vi
 
 declare global {
   namespace Cypress {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export interface Chainable<Subject> {
       viewSetScrollbar(options?: ViewSetScrollbarOptions): Chainable<void>;
       viewAutoSetScrollbar(options?: ViewAutoSetScrollbarOptions): Chainable<void>;

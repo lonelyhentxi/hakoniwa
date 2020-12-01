@@ -34,6 +34,7 @@ export type PartialProxySetValueOptions = Partial<ProxySetValueOptions> & {
 
 declare global {
   namespace Cypress {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export interface Chainable<Subject> {
       // Proxy Server
       proxyStart(options?: Partial<ProxyStartServerOptions>): Chainable<void>;
@@ -147,11 +148,12 @@ Cypress.Commands.add('proxyStop', (options: Partial<ProxyStopServerOptions> = {}
 });
 
 Cypress.Commands.add('proxySetRule', (options: PartialProxySetRuleOptions) => {
-  const {HAKONIWA_PROXY_DIR, HAKONIWA_PROXY_IDENTIFIER} = Cypress.config('env');
+  const {HAKONIWA_PROXY_PROTOCOL, HAKONIWA_PROXY_HOST, HAKONIWA_PROXY_PORT } = Cypress.config('env');
   const config = Object.assign(
     {
-      baseDir: HAKONIWA_PROXY_DIR,
-      identifier: HAKONIWA_PROXY_IDENTIFIER,
+      protocol: HAKONIWA_PROXY_PROTOCOL,
+      host: HAKONIWA_PROXY_HOST,
+      port: HAKONIWA_PROXY_PORT,
     },
     options,
   );

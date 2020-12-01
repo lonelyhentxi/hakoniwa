@@ -46,6 +46,7 @@ export const AuthSecretsScheme = Joi.object({
 
 declare global {
   namespace Cypress {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export interface Chainable<Subject> {
       authLoadConfig(options: AuthStoreOptions): Chainable<AuthConfig>;
       authLoadSecrets(options: AuthStoreOptions): Chainable<{loaded: boolean; authUrl: string}>;

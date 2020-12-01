@@ -66,7 +66,7 @@
     "lodash": "^4.17.20",
     "node-fetch": "^2.6.1",
     "queue-typescript": "^1.0.1",
-    "whistle": "^2.5.18"
+    "whistle": "^2.6.7"
   },
   "bin": {
     "hakoniwa-cli": "./scripts/cli.js"

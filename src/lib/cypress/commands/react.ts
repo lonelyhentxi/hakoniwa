@@ -14,6 +14,7 @@ export interface ReactNodeInvokeOptions extends ReactNodeMethodOptions {
 
 declare global {
   namespace Cypress {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export interface Chainable<Subject> {
       reactGet(options: ReactNodeIdentifierOptions): Chainable<any>;
       reactInvoke(options: ReactNodeInvokeOptions): Chainable<any>;

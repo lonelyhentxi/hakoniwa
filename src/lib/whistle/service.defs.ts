@@ -14,23 +14,17 @@ export interface StopServerOptions {
   w2path?: string;
 }
 
-export interface SetRuleOptions {
-  baseDir: string;
-  identifier: string;
-  ruleName: string;
-  ruleContent: string;
-  // default: true
-  force?: boolean;
-  // default: w2
-  w2path?: string;
-}
-
 export interface ProxyOptions {
   host: string;
   port: number;
   protocol: 'http' | 'https';
 }
 
+export type SetRuleOptions = ProxyOptions & {
+  ruleName: string, 
+  ruleContent: string;
+  force?: boolean;
+};
 export type ToggleConfigOptions = ProxyOptions & {value: boolean};
 export type IdentifyConfigOptions = ProxyOptions & {name: string};
 export type SetValueOptions = ProxyOptions & {

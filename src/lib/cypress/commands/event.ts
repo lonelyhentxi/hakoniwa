@@ -11,6 +11,7 @@ export interface EventAutoHandlerOptions extends EventCancellationOptions {
 
 declare global {
   namespace Cypress {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export interface Chainable<Subject> {
       eventAddAutoHandler(options: EventAutoHandlerOptions): Chainable<void>;
       eventCancelAutoHandler(options: EventCancellationOptions): Chainable<void>;

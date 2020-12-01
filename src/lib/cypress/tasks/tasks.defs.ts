@@ -27,6 +27,7 @@ export {
 
 declare global {
   namespace Cypress {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     export interface Chainable<Subject> {
       // Filesystem
       task(task: 'fsReadFileOrNull', path: string): Chainable<string | null>;

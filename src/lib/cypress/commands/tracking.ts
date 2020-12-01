@@ -1,5 +1,6 @@
 import './env';
 import 'cypress-wait-until';
+import { RouteMatcherOptions, CyHttpMessages } from 'cypress/types/net-stubbing'
 import {
   TrackingLogger,
   DefaultTimelineTrackingLogger,
@@ -9,39 +10,41 @@ import {
 import {isIterable} from '../../hack/meta';
 import {some, every, isMatch} from 'lodash';
 
+export type IncomingHttpRequest = CyHttpMessages.IncomingHttpRequest;
+
 export class TrackingTimelineHTTPTrackingLogger<Mark = any> extends DefaultTimelineTrackingLogger<
-  Cypress.WaitXHR,
+  IncomingHttpRequest,
   Mark
 > {}
-export type TrackingTimelineTrackingLoggerChecker = TimelineTrackingLoggerChecker<Cypress.WaitXHR>;
+export type TrackingTimelineTrackingLoggerChecker = TimelineTrackingLoggerChecker<IncomingHttpRequest>;
 
-export interface TrackingRegisterHTTPLoggerOptions<TL extends TrackingLogger<Cypress.WaitXHR>>
-  extends Partial<Cypress.RouteOptions> {
+export interface TrackingRegisterHTTPLoggerOptions<TL extends TrackingLogger<IncomingHttpRequest>>
+  extends Partial<RouteMatcherOptions> {
   trackingLogger: TL;
 }
 
-export interface TrackingGetHTTPLoggerOptions<TL extends TrackingLogger<Cypress.WaitXHR>> {
+export interface TrackingGetHTTPLoggerOptions<TL extends TrackingLogger<IncomingHttpRequest>> {
   trackingLogger: TL;
 }
 
-export interface TrackingMarkHTTPLoggerOptions<TL extends TimelineTrackingLogger<Cypress.WaitXHR>> {
+export interface TrackingMarkHTTPLoggerOptions<TL extends TimelineTrackingLogger<IncomingHttpRequest>> {
   trackingLogger: TL;
   mark: any;
 }
 
-export interface TrackingWaitHTTPLoggerOptions<Subject, TL extends TimelineTrackingLogger<Cypress.WaitXHR>>
+export interface TrackingWaitHTTPLoggerOptions<Subject, TL extends TimelineTrackingLogger<IncomingHttpRequest>>
   extends WaitUntilOptions<Subject> {
   trackingLogger: TL;
-  checker: (logs: Cypress.WaitXHR[]) => boolean;
+  checker: (logs: IncomingHttpRequest[]) => boolean;
   mark?: any;
 }
 
-export interface TrackingCheckHTTPLoggerOptions<Subject, TL extends TimelineTrackingLogger<Cypress.WaitXHR>>
+export interface TrackingCheckHTTPLoggerOptions<Subject, TL extends TimelineTrackingLogger<IncomingHttpRequest>>
   extends TrackingWaitHTTPLoggerOptions<Subject, TL> {
   f: () => Cypress.Chainable<any> | any;
 }
 
-export interface TrackingThrottleHTTPLoggerOptions<Subject, TL extends TimelineTrackingLogger<Cypress.WaitXHR>>
+export interface TrackingThrottleHTTPLoggerOptions<Subject, TL extends TimelineTrackingLogger<IncomingHttpRequest>>
   extends WaitUntilOptions<Subject> {
   trackingLogger: TL;
 }
@@ -52,10 +55,10 @@ export interface TrackingRegisterMethodLoggerOptions {
 }
 
 export interface TrackingAddHTTPLoggerOptions<
-  TL extends TrackingLogger<Cypress.WaitXHR> = TrackingTimelineHTTPTrackingLogger<any>
-> extends Partial<Cypress.RouteOptions> {
+  TL extends TrackingLogger<IncomingHttpRequest> = TrackingTimelineHTTPTrackingLogger<any>
+> extends Partial<RouteMatcherOptions> {
   trackingLogger?: TL;
-  routeAction?: (router: ReturnType<typeof cy.route>) => Cypress.Chainable<void>;
+  routeAction?: (router: ReturnType<typeof cy.intercept>) => ReturnType<typeof cy.intercept>;
 }
 
 export type TrackingHTTPResJSONBody = {
@@ -75,22 +78,22 @@ declare global {
   namespace Cypress {
     export type CyRouteOptions = RouteOptions;
     export interface Chainable<Subject> {
-      trackingRegisterHTTPLogger<TL extends TrackingLogger<Cypress.WaitXHR>>(
+      trackingRegisterHTTPLogger<TL extends TrackingLogger<IncomingHttpRequest>>(
         options: TrackingRegisterHTTPLoggerOptions<TL>,
-      ): ReturnType<typeof cy.route>;
-      trackingGetHTTPLogger<TL extends TrackingLogger<Cypress.WaitXHR>>(
+      ): ReturnType<typeof cy.intercept>;
+      trackingGetHTTPLogger<TL extends TrackingLogger<IncomingHttpRequest>>(
         options: TrackingGetHTTPLoggerOptions<TL>,
       ): Chainable<TL>;
-      trackingMarkHTTPLogger<TL extends TimelineTrackingLogger<Cypress.WaitXHR>>(
+      trackingMarkHTTPLogger<TL extends TimelineTrackingLogger<IncomingHttpRequest>>(
         options: TrackingMarkHTTPLoggerOptions<TL>,
       ): Chainable<TL>;
-      trackingWaitHTTPLogger<TL extends TimelineTrackingLogger<Cypress.WaitXHR>>(
+      trackingWaitHTTPLogger<TL extends TimelineTrackingLogger<IncomingHttpRequest>>(
         options: TrackingWaitHTTPLoggerOptions<Subject, TL>,
       ): Chainable<TL>;
-      trackingThrottleHTTPLogger<TL extends TimelineTrackingLogger<Cypress.WaitXHR>>(
+      trackingThrottleHTTPLogger<TL extends TimelineTrackingLogger<IncomingHttpRequest>>(
         options: TrackingThrottleHTTPLoggerOptions<Subject, TL>,
       ): Chainable<TL>;
-      trackingCheckHTTPLogger<TL extends TimelineTrackingLogger<Cypress.WaitXHR>>(
+      trackingCheckHTTPLogger<TL extends TimelineTrackingLogger<IncomingHttpRequest>>(
         options: TrackingCheckHTTPLoggerOptions<Subject, TL>,
       ): Chainable<TL>;
       trackingRegisterMethodLogger(options: TrackingRegisterMethodLoggerOptions): ReturnType<typeof cy.spy>;
@@ -100,27 +103,24 @@ declare global {
 
 Cypress.Commands.add(
   'trackingRegisterHTTPLogger',
-  (options: TrackingRegisterHTTPLoggerOptions<TrackingLogger<Cypress.WaitXHR>>) => {
+  (options: TrackingRegisterHTTPLoggerOptions<TrackingLogger<IncomingHttpRequest>>) => {
     const logger = options.trackingLogger;
-    return cy.route({
-      ...options,
-      onRequest: xhr => {
-        logger.track(xhr);
-      },
+    return cy.intercept(options, req => {
+      logger.track(req);
     });
   },
 );
 
 Cypress.Commands.add(
   'trackingGetHTTPLogger',
-  (options: TrackingGetHTTPLoggerOptions<TrackingLogger<Cypress.WaitXHR>>) => {
+  (options: TrackingGetHTTPLoggerOptions<TrackingLogger<IncomingHttpRequest>>) => {
     return cy.wrap(options.trackingLogger);
   },
 );
 
 Cypress.Commands.add(
   'trackingMarkHTTPLogger',
-  (options: TrackingMarkHTTPLoggerOptions<TimelineTrackingLogger<Cypress.WaitXHR>>) => {
+  (options: TrackingMarkHTTPLoggerOptions<TimelineTrackingLogger<IncomingHttpRequest>>) => {
     const config = options;
     const trackingLogger = config.trackingLogger;
     const mark = config.mark;
@@ -137,7 +137,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   'trackingWaitHTTPLogger',
-  (options: TrackingWaitHTTPLoggerOptions<any, TimelineTrackingLogger<Cypress.WaitXHR>>) => {
+  (options: TrackingWaitHTTPLoggerOptions<any, TimelineTrackingLogger<IncomingHttpRequest>>) => {
     const fromNow = !options.mark;
     return cy
       .wrap(() => Date.now())
@@ -169,7 +169,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   'trackingThrottleHTTPLogger',
-  (options: TrackingThrottleHTTPLoggerOptions<any, TimelineTrackingLogger<Cypress.WaitXHR>>) => {
+  (options: TrackingThrottleHTTPLoggerOptions<any, TimelineTrackingLogger<IncomingHttpRequest>>) => {
     const {HAKONIWA_TRACKING_HTTP_THROTTLE_TIME} = Cypress.config('env');
     const config = Object.assign(
       {
@@ -188,7 +188,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   'trackingCheckHTTPLogger',
-  (options: TrackingCheckHTTPLoggerOptions<any, TimelineTrackingLogger<Cypress.WaitXHR>>) => {
+  (options: TrackingCheckHTTPLoggerOptions<any, TimelineTrackingLogger<IncomingHttpRequest>>) => {
     const fromNow = !options.mark;
     return cy
       .wrap(() => Date.now())
@@ -225,12 +225,12 @@ Cypress.Commands.add('trackingRegisterMethodLogger', (options: TrackingRegisterM
 });
 
 export function trackingAddHTTPLogger<
-  TL extends TrackingLogger<Cypress.WaitXHR> = TrackingTimelineHTTPTrackingLogger<any>
+  TL extends TrackingLogger<IncomingHttpRequest> = TrackingTimelineHTTPTrackingLogger<any>
 >(options: TrackingAddHTTPLoggerOptions<TL> = {}) {
   const config = Object.assign(
     {
       trackingLogger: new TrackingTimelineHTTPTrackingLogger(),
-      routeAction: (route: ReturnType<typeof cy.route>) => route,
+      routeAction: (route: ReturnType<typeof cy.intercept>) => route,
     },
     options,
   );
@@ -251,17 +251,17 @@ export function trackingGenerateHTTPReqPlainBodyCheck(body: TrackingHTTPResPlain
     }
   }
   const regs = pairs.map(p => new RegExp(`${encodeURIComponent(p[0])}=${encodeURIComponent(p[1])}`));
-  return (logs: Cypress.WaitXHR[]) => {
+  return (logs: IncomingHttpRequest[]) => {
     return some(logs, l => {
-      return every(regs, r => l.requestBody.match(r));
+      return every(regs, r => l.body.match(r));
     });
   };
 }
 
 export function trackingGenerateHTTPReqJSONBodyCheck(body: TrackingHTTPResJSONBody) {
-  return (logs: Cypress.WaitXHR[]) => {
+  return (logs: IncomingHttpRequest[]) => {
     return some(logs, l => {
-      return isMatch(l.requestBody as any, body);
+      return isMatch(l.body as any, body);
     });
   };
 }
@@ -279,7 +279,7 @@ export function trackingGenerateHTTPReqQueriesCheck(body: TrackingHTTPResPlainBo
     }
   }
   const regs = pairs.map(p => new RegExp(`${encodeURIComponent(p[0])}=${encodeURIComponent(p[1])}`));
-  return (logs: Cypress.WaitXHR[]) => {
+  return (logs: IncomingHttpRequest[]) => {
     return some(logs, l => {
       const queriesString = l.url.split('?').slice(1).join('?');
       return every(regs, r => queriesString.match(r));
