@@ -283,14 +283,5 @@ Cypress.Commands.add('proxySetValue', (options: ProxySetValueOptions) => {
     },
     options,
   );
-  cy.proxyGetValues(config).then(data => {
-    const valueNames = new Set(data.map(v => v.name));
-    if (valueNames.has(config.name) && config.force) {
-      cy.proxyRemoveRules({
-        ...config,
-        names: config.name,
-      });
-    }
-    cy.task('proxySetValue', config);
-  });
+  cy.task('proxySetValue', config);
 });
