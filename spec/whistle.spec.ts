@@ -16,8 +16,9 @@ const main = async () => {
     ]
   );
   setRuleSync({
-    baseDir: './temp',
-    identifier: 'spec',
+    protocol: 'http',
+    host: 'localhost',
+    port: 11111,
     ruleName: rules.name,
     ruleContent: rules.content(),
     force: true
@@ -30,8 +31,9 @@ const main = async () => {
     ]
   );
   setRuleSync({
-    baseDir: './temp',
-    identifier: 'spec',
+    protocol: 'http',
+    host: 'localhost',
+    port: 11111,
     ruleName: rules.name,
     ruleContent: rules.content(),
     force: true
