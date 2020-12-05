@@ -154,6 +154,7 @@ Cypress.Commands.add('proxySetRule', (options: PartialProxySetRuleOptions) => {
       protocol: HAKONIWA_PROXY_PROTOCOL,
       host: HAKONIWA_PROXY_HOST,
       port: HAKONIWA_PROXY_PORT,
+      force: true
     },
     options,
   );
