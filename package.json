@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "test",
+    "test": "ts-node ./spec/whistle.spec.ts",
     "watch": "tsc -w",
     "commit": "git cz",
     "clean": "node ./scripts/clean.js"

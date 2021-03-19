@@ -241,7 +241,7 @@ Cypress.Commands.add('proxyRemoveRules', (options: Partial<ProxyIdentifyConfigsO
   );
   if (!options.names) {
     cy.proxyGetData(config).then(data => {
-      config.names = data.list;
+      config.names = data.list; 
       cy.task('proxyRemoveRules', config);
     });
   } else {
