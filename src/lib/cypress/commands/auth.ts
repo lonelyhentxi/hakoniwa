@@ -2,7 +2,7 @@ import {isFunction, isString, isNil} from 'lodash';
 import 'cypress-wait-until';
 import 'cypress-localstorage-commands';
 import * as path from 'path';
-import * as Joi from '@hapi/joi';
+import * as Joi from 'joi';
 import * as Json5 from 'json5';
 import './env';
 

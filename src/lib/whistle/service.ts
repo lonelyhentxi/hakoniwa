@@ -59,7 +59,7 @@ export async function setRuleSync({ protocol, host, port, ruleName, ruleContent,
         name: ruleName
       })
     });
-    const existence = !!(await existenceRes.json()).rules;
+    const existence = !!(await existenceRes.json() as any).rules;
     if (existence) {
       throw new Error('existence rules, can not set');
     }
@@ -141,6 +141,6 @@ export async function getValues(options: ProxyOptions): Promise<ProxyValue[]> {
   const res = await fetch(`${options.protocol}://${options.host}:${options.port}/cgi-bin/values/get`, {
     method: 'GET',
   });
-  const json = await res.json();
+  const json = (await res.json()) as any;
   return json.values;
 }

@@ -18,7 +18,7 @@ for(const t of target) {
   if(!fs.existsSync(p)) {
     continue;
   } else if(fs.statSync(p).isDirectory()) {
-    fs.rmdirSync(p, {
+    fs.rmSync(p, {
       recursive: true,
     });
   } else {

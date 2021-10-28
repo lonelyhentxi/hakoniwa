@@ -1,6 +1,6 @@
 import { startServerSync, setRuleSync, getData, removeRule, stopServerSync, getValues, setValue, removeValue } from '../src/lib/whistle/service';
 import { PlainProxyRules as Rs, PlainProxyRule as R, RegExpProxyPattern as P } from '../src/lib/whistle/index.node';
-const assert = require('assert');
+import assert from 'assert';
 
 const main = async () => {
   startServerSync({
