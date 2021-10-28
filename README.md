@@ -16,12 +16,7 @@ Miniature wonder toolbox for front-end development.
 ## Install
 
 ```shell
-git clone https://github.com/lonelyhentai/hakoniwa.git
-cd hakoniwa
-npm link
-cd /path/to/your-project
-npm install --save-dev cypress cross-env webpack typescript ts-loader @cypress/webpack-preprocessor
-npm link hakoniwa
+npm install --save-dev hakoniwa cypress cross-env webpack typescript ts-loader @cypress/webpack-preprocessor
 hakoniwa-cli init
 ```
 

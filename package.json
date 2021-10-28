@@ -1,6 +1,6 @@
 {
   "name": "hakoniwa",
-  "version": "0.1.4-alpha.1",
+  "version": "0.1.4-rc.1",
   "description": "miniature wonder toolbox for front-end development.",
   "exports": "./index.browser.js",
   "types": "./index.browser.d.ts",
